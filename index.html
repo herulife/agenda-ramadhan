@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
@@ -8,6 +8,8 @@
     <!-- Google Font & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -15,6 +17,7 @@
             box-sizing: border-box;
             font-family: 'Quicksand', sans-serif;
         }
+
         body {
             background: linear-gradient(145deg, #f9f0d4 0%, #fce2c1 100%);
             min-height: 100vh;
@@ -22,6 +25,7 @@
             justify-content: center;
             padding: 16px 12px;
         }
+
         .app-container {
             max-width: 750px;
             width: 100%;
@@ -29,7 +33,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 60px 60px 40px 40px;
-            box-shadow: 0 30px 50px rgba(241, 143, 1, 0.2), 0 20px 40px rgba(0,60,80,0.1);
+            box-shadow: 0 30px 50px rgba(241, 143, 1, 0.2), 0 20px 40px rgba(0, 60, 80, 0.1);
             overflow: hidden;
             padding: 28px 22px 35px;
             border: 3px solid #ffffffaa;
@@ -43,6 +47,7 @@
             align-items: center;
             margin-bottom: 20px;
         }
+
         .header h1 {
             font-size: 2.2rem;
             background: linear-gradient(135deg, #b43b0d, #e97c1f);
@@ -54,6 +59,7 @@
             gap: 12px;
             letter-spacing: -0.5px;
         }
+
         .header h1 i {
             background: #ffd966;
             padding: 12px;
@@ -63,6 +69,7 @@
             box-shadow: 0 8px 0 #b45f06;
             transform: translateY(-3px);
         }
+
         .btn-reset {
             background: #ffcf8a;
             border: 3px solid white;
@@ -74,10 +81,11 @@
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            box-shadow: 0 8px 0 #b45f06, 0 6px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 0 #b45f06, 0 6px 12px rgba(0, 0, 0, 0.1);
             transition: 0.1s ease;
             font-size: 1rem;
         }
+
         .btn-reset:active {
             transform: translateY(6px);
             box-shadow: 0 2px 0 #b45f06;
@@ -91,6 +99,7 @@
             margin-bottom: 25px;
             justify-content: center;
         }
+
         .balance-item {
             flex: 1 0 130px;
             background: linear-gradient(145deg, #feeac2, #ffd9a3);
@@ -103,19 +112,23 @@
             box-shadow: 0 10px 0 #bb6b2e, 0 6px 15px #e6933e80;
             transition: 0.2s;
         }
+
         .balance-item:hover {
             transform: scale(1.02);
         }
+
         .balance-item .avatar {
             font-size: 2rem;
-            filter: drop-shadow(2px 4px 2px rgba(0,0,0,0.1));
+            filter: drop-shadow(2px 4px 2px rgba(0, 0, 0, 0.1));
         }
+
         .balance-item .name {
             font-weight: 800;
             color: #6b3f00;
             font-size: 1.1rem;
             margin: 4px 0 2px;
         }
+
         .balance-item .value {
             font-size: 2.5rem;
             font-weight: 900;
@@ -123,6 +136,7 @@
             line-height: 1.1;
             text-shadow: 2px 2px 0 #ffe3b0;
         }
+
         .balance-item .small {
             font-size: 0.8rem;
             background: #ffffffaa;
@@ -139,6 +153,7 @@
             margin-bottom: 18px;
             flex-wrap: wrap;
         }
+
         .tab-child {
             flex: 1 0 auto;
             background: #ffe8c7;
@@ -153,6 +168,7 @@
             min-width: 115px;
             box-shadow: 0 6px 0 #b8772e;
         }
+
         .tab-child.active {
             background: #fb8b2c;
             color: white;
@@ -172,6 +188,7 @@
             border: 3px solid white;
             box-shadow: 0 6px 0 #b8772e;
         }
+
         .date-nav button {
             background: #ffb156;
             border: 3px solid white;
@@ -187,10 +204,12 @@
             box-shadow: 0 4px 0 #9f5100;
             transition: 0.1s;
         }
+
         .date-nav button:active {
             transform: translateY(4px);
             box-shadow: 0 1px 0 #9f5100;
         }
+
         .date-display {
             font-weight: 800;
             font-size: 1.2rem;
@@ -212,6 +231,7 @@
             max-height: 420px;
             overflow-y: auto;
         }
+
         .task-row {
             display: flex;
             align-items: center;
@@ -221,21 +241,25 @@
             transition: 0.2s;
             border-radius: 40px;
         }
+
         .task-row:hover {
             background: #ffefd2;
         }
+
         .task-icon {
             font-size: 1.5rem;
             width: 36px;
             text-align: center;
             filter: drop-shadow(2px 2px 0 #ffb347);
         }
+
         .task-name {
             flex: 1;
             font-weight: 600;
             color: #3b280b;
             font-size: 1rem;
         }
+
         .task-point {
             background: #ffd89c;
             border-radius: 40px;
@@ -246,11 +270,13 @@
             border: 2px solid white;
             white-space: nowrap;
         }
+
         .task-counter {
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
         .task-counter button {
             width: 32px;
             height: 32px;
@@ -267,10 +293,12 @@
             align-items: center;
             justify-content: center;
         }
+
         .task-counter button:active {
             transform: translateY(4px);
             box-shadow: 0 1px 0 #9f5100;
         }
+
         .task-counter span {
             min-width: 30px;
             text-align: center;
@@ -288,6 +316,7 @@
             box-shadow: 0 12px 0 #b8772e, 0 12px 25px #e79a4e;
             margin-top: 25px;
         }
+
         .reward-section h2 {
             font-size: 2rem;
             font-weight: 800;
@@ -297,23 +326,27 @@
             gap: 12px;
             margin-bottom: 20px;
         }
+
         .reward-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
             gap: 18px;
         }
+
         .reward-card {
             background: white;
             border-radius: 40px;
             padding: 18px 12px;
             border: 3px solid #fec382;
-            box-shadow: 0 8px 0 #d47f2a, 0 6px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 0 #d47f2a, 0 6px 12px rgba(0, 0, 0, 0.1);
             transition: 0.15s;
         }
+
         .reward-card:active {
             transform: translateY(5px);
             box-shadow: 0 3px 0 #d47f2a;
         }
+
         .reward-name {
             font-weight: 800;
             color: #5d3b12;
@@ -323,6 +356,7 @@
             align-items: center;
             gap: 6px;
         }
+
         .reward-price {
             background: #fecb8b;
             border-radius: 30px;
@@ -333,11 +367,13 @@
             font-size: 0.9rem;
             border: 2px solid white;
         }
+
         .redeem-buttons {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
+
         .btn-redeem {
             background: #f09b22;
             border: 3px solid white;
@@ -355,16 +391,19 @@
             box-shadow: 0 4px 0 #9f5100;
             transition: 0.1s;
         }
+
         .btn-redeem:active {
             transform: translateY(4px);
             box-shadow: 0 1px 0 #9f5100;
         }
+
         .btn-redeem:disabled {
             background: #cfa87a;
             box-shadow: 0 4px 0 #7b572b;
             pointer-events: none;
             opacity: 0.7;
         }
+
         .redeem-count {
             background: #fdeaac;
             border-radius: 30px;
@@ -382,348 +421,438 @@
         }
     </style>
 </head>
+
 <body>
-<div class="app-container">
-    <div class="header">
-        <h1>
-            <i class="fas fa-moon"></i> 
-            Ramadhan Ceria
-        </h1>
-        <button class="btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> Mulai Lagi</button>
+    <div class="app-container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-moon"></i>
+                Ramadhan Ceria
+            </h1>
+            <button class="btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> Mulai Lagi</button>
+        </div>
+
+        <!-- Saldo 4 anak dengan avatar -->
+        <div class="balance-cards" id="balanceCards"></div>
+
+        <!-- Tab pilih anak -->
+        <div class="child-tabs" id="childTabs"></div>
+
+        <!-- Navigasi tanggal -->
+        <div class="date-nav">
+            <button id="prevDateBtn"><i class="fas fa-chevron-left"></i></button>
+            <span class="date-display" id="currentDateDisplay">Hari Kamis · 19 Feb</span>
+            <button id="nextDateBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- Daftar tugas dengan counter -->
+        <div class="tasks-list" id="tasksContainer"></div>
+
+        <!-- Reward dengan gaya -->
+        <div class="reward-section">
+            <h2><i class="fas fa-gift"></i> Yuk Tukar Poin!</h2>
+            <div class="reward-grid" id="rewardGrid"></div>
+        </div>
+        <footer>✨ klik + / - untuk catat jumlah tugas · poin otomatis ✨</footer>
     </div>
 
-    <!-- Saldo 4 anak dengan avatar (semua perempuan pakai jilbab) -->
-    <div class="balance-cards" id="balanceCards"></div>
+    <script>
+        (function () {
+            // ------------------------------------------------------------
+            // KONFIGURASI SUPABASE (isi dengan project Anda)
+            // ------------------------------------------------------------
+            const supabaseUrl = 'https://aduqtvddwbvwttfxhauk.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkdXF0dmRkd2J2d3R0ZnhoYXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTQ5NjIsImV4cCI6MjA4NzA5MDk2Mn0.Ec7qh1v1Wp_GW7dM7F9hsN89cTo9hlbRXLgZWE1jlPg';
 
-    <!-- Tab pilih anak -->
-    <div class="child-tabs" id="childTabs"></div>
+            // Inisialisasi Supabase client dengan nama berbeda
+            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    <!-- Navigasi tanggal -->
-    <div class="date-nav">
-        <button id="prevDateBtn"><i class="fas fa-chevron-left"></i></button>
-        <span class="date-display" id="currentDateDisplay">Hari Kamis · 19 Feb</span>
-        <button id="nextDateBtn"><i class="fas fa-chevron-right"></i></button>
-    </div>
+            // ------------------------------------------------------------
+            // DATA STATIS (sama seperti sebelumnya, harga Soto & Mie ayam = 10)
+            // ------------------------------------------------------------
+            const children = [
+                { id: 'kaka', name: 'Kaka Fatimah', short: 'Kaka', icon: '🧕' },
+                { id: 'teteh', name: 'Teteh Aisyah', short: 'Teteh', icon: '🧕' },
+                { id: 'kahfi', name: 'Mas Kahfi', short: 'Kahfi', icon: '👦' },
+                { id: 'zahira', name: 'Zahira', short: 'Zahira', icon: '🧕' }
+            ];
 
-    <!-- Daftar tugas dengan counter -->
-    <div class="tasks-list" id="tasksContainer"></div>
+            const tasks = [
+                { name: "Menyapu dalam rumah", icon: "🧹", point: 1 },
+                { name: "Menyapu luar rumah", icon: "🧹", point: 1 },
+                { name: "Mengepel", icon: "🧼", point: 1 },
+                { name: "Mencuci baju", icon: "🧺", point: 2 },
+                { name: "Menjemur baju", icon: "☀️", point: 1 },
+                { name: "Mencuci piring (alat masak)", icon: "🍽️", point: 2 },
+                { name: "Mencuci piring & alat makan", icon: "🥄", point: 1 },
+                { name: "Mengerjakan Mtk 35 soal", icon: "📐", point: 3 },
+                { name: "Baca buku 5 halaman + tanya", icon: "📚", point: 3 },
+                { name: "Baca al quran 5 lembar", icon: "📖", point: 3 },
+                { name: "Menghafal al quran 3 ayat", icon: "🤲", point: 3 },
+                { name: "Tidak berantem (Zahira)", icon: "🕊️", point: 3 },
+                { name: "Mencuci sepatu semua", icon: "👟", point: 2 },
+                { name: "Merapikan tempat tidur", icon: "🛏️", point: 1 },
+                { name: "Sholat Subuh", icon: "🕋", point: 1 },
+                { name: "Sholat Dzuhur", icon: "🕋", point: 1 },
+                { name: "Sholat Ashar", icon: "🕋", point: 1 },
+                { name: "Sholat Maghrib", icon: "🕋", point: 1 },
+                { name: "Sholat Isya", icon: "🕋", point: 1 },
+                { name: "Puasa full 1 hari", icon: "🌙", point: 2 },
+                { name: "Sholat dhuha", icon: "🌅", point: 1 },
+                { name: "Sholat tarawih jamaah", icon: "🕌", point: 2 },
+                { name: "Olahraga 30 menit", icon: "⚽", point: 1 },
+                { name: "Kuliah subuh", icon: "📻", point: 2 },
+                { name: "Shalat tahajud", icon: "⭐", point: 1 }
+            ];
 
-    <!-- Reward dengan gaya -->
-    <div class="reward-section">
-        <h2><i class="fas fa-gift"></i> Yuk Tukar Poin!</h2>
-        <div class="reward-grid" id="rewardGrid"></div>
-    </div>
-    <footer>✨ klik + / - untuk catat jumlah tugas · poin otomatis ✨</footer>
-</div>
+            const rewards = [
+                { name: "Main game 30 menit", icon: "🎮", price: 15 },
+                { name: "3 risol", icon: "🥟", price: 1 },
+                { name: "3 Jely", icon: "🍮", price: 1 },
+                { name: "3 brownis", icon: "🍫", price: 1 },
+                { name: "3 bolu pisang", icon: "🍌", price: 1 },
+                { name: "Susu ultra putih", icon: "🥛", price: 2 },
+                { name: "Susu ultra coklat", icon: "🥛", price: 3 },
+                { name: "Susu ultra pink", icon: "🥛", price: 3 },
+                { name: "Beng beng", icon: "🍫", price: 2 },
+                { name: "Soto", icon: "🍲", price: 10 },      // diperbaiki
+                { name: "Mixue", icon: "🍦", price: 15 },
+                { name: "Lazato/chicken", icon: "🍗", price: 15 },
+                { name: "Mie ayam", icon: "🍜", price: 10 },   // diperbaiki
+                { name: "Qtela", icon: "🍟", price: 1 },
+                { name: "3 pastel", icon: "🥧", price: 1 },
+                { name: "koko crunch + susu", icon: "🥣", price: 3 },
+                { name: "3 Klepon / Kue Basa", icon: "🟢 + 🍡", price: 1 }
+            ];
 
-<script>
-    (function() {
-        // ------------------------------------------------------------
-        // DATA KONFIGURASI DENGAN IKON (perempuan semua pakai jilbab)
-        // ------------------------------------------------------------
-        const children = [
-            { id: 'kaka', name: 'Kaka Fatimah', short: 'Kaka', icon: '🧕' },
-            { id: 'teteh', name: 'Teteh Aisyah', short: 'Teteh', icon: '🧕' },
-            { id: 'kahfi', name: 'Mas Kahfi', short: 'Kahfi', icon: '👦' },
-            { id: 'zahira', name: 'Zahira', short: 'Zahira', icon: '🧕' }
-        ];
+            // ------------------------------------------------------------
+            // STATE: Data akan diisi dari Supabase
+            // ------------------------------------------------------------
+            let taskData = [];
+            let redemptions = [];
+            let dataLoaded = false;
+            let currentChild = 0;
+            let currentDay = 0;
 
-        // Tugas dengan ikon dan poin (per kali)
-        const tasks = [
-            { name: "Menyapu dalam rumah", icon: "🧹", point: 1 },
-            { name: "Menyapu luar rumah", icon: "🧹", point: 1 },
-            { name: "Mengepel", icon: "🧼", point: 1 },
-            { name: "Mencuci baju", icon: "🧺", point: 2 },
-            { name: "Menjemur baju", icon: "☀️", point: 1 },
-            { name: "Mencuci piring (alat masak)", icon: "🍽️", point: 2 },
-            { name: "Mencuci piring & alat makan", icon: "🥄", point: 1 },
-            { name: "Mengerjakan Mtk 35 soal", icon: "📐", point: 3 },
-            { name: "Baca buku 5 halaman + tanya", icon: "📚", point: 3 },
-            { name: "Baca al quran 5 lembar", icon: "📖", point: 3 },
-            { name: "Menghafal al quran 3 ayat", icon: "🤲", point: 3 },
-            { name: "Tidak berantem (Zahira)", icon: "🕊️", point: 3 },
-            { name: "Mencuci sepatu semua", icon: "👟", point: 2 },
-            { name: "Merapikan tempat tidur", icon: "🛏️", point: 1 },
-            { name: "Sholat Subuh", icon: "🕋", point: 1 },
-            { name: "Sholat Dzuhur", icon: "🕋", point: 1 },
-            { name: "Sholat Ashar", icon: "🕋", point: 1 },
-            { name: "Sholat Maghrib", icon: "🕋", point: 1 },
-            { name: "Sholat Isya", icon: "🕋", point: 1 },
-            { name: "Puasa full 1 hari", icon: "🌙", point: 2 },
-            { name: "Sholat dhuha", icon: "🌅", point: 1 },
-            { name: "Sholat tarawih jamaah", icon: "🕌", point: 2 },
-            { name: "Olahraga 30 menit", icon: "⚽", point: 1 },
-            { name: "Kuliah subuh", icon: "📻", point: 2 },
-            { name: "Shalat tahajud", icon: "⭐", point: 1 }
-        ];
+            // ------------------------------------------------------------
+            // FUNGSI MEMUAT DATA DARI SUPABASE
+            // ------------------------------------------------------------
+            async function loadTaskCompletions() {
+                const { data, error } = await supabaseClient
+                    .from('task_completions')
+                    .select('*');
 
-        // Reward (Soto dan Mie ayam poin 10)
-        const rewards = [
-            { name: "Main game 30 menit", icon: "🎮", price: 15 },
-            { name: "3 risol", icon: "🥟", price: 1 },
-            { name: "3 Jely", icon: "🍮", price: 1 },
-            { name: "3 brownis", icon: "🍫", price: 1 },
-            { name: "3 bolu pisang", icon: "🍌", price: 1 },
-            { name: "Susu ultra putih", icon: "🥛", price: 2 },
-            { name: "Susu ultra coklat", icon: "🥛", price: 3 },
-            { name: "Susu ultra pink", icon: "🥛", price: 3 },
-            { name: "Beng beng", icon: "🍫", price: 2 },
-            { name: "Soto", icon: "🍲", price: 1 },      // diubah jadi 10
-            { name: "Mixue", icon: "🍦", price: 15 },
-            { name: "Lazato/chicken", icon: "🍗", price: 15 },
-            { name: "Mie ayam", icon: "🍜", price: 15 },   // 10 poin
-            { name: "Qtela", icon: "🍟", price: 1 },
-            { name: "3 pastel", icon: "🥧", price: 1 },
-            { name: "koko crunch + susu", icon: "🥣", price: 3 },
-            { name: "3 Klepon / Kue Basa", icon: "🟢 + 🍡", price: 1 }
-        ];
-
-        // ------------------------------------------------------------
-        // STATE: DATA DISIMPAN DI LOCALSTORAGE (integer untuk jumlah)
-        // ------------------------------------------------------------
-        let taskData = [];      // [anak][hari][tugas] = jumlah (integer)
-        let redemptions = [];   // [anak][reward] = jumlah
-
-        function saveToStorage() {
-            const data = {
-                taskData: taskData,
-                redemptions: redemptions
-            };
-            localStorage.setItem('ramadhanCeriaData', JSON.stringify(data));
-        }
-
-        function loadFromStorage() {
-            const saved = localStorage.getItem('ramadhanCeriaData');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    taskData = data.taskData;
-                    redemptions = data.redemptions;
-                    if (!taskData || taskData.length !== 4) throw new Error('Invalid data');
-                } catch (e) {
-                    console.warn('Gagal memuat data, gunakan default');
-                    initializeEmpty();
+                if (error) {
+                    console.error('Gagal memuat task completions:', error);
+                    return;
                 }
-            } else {
-                initializeEmpty();
-            }
-        }
 
-        function initializeEmpty() {
-            taskData = [];
-            redemptions = [];
-            for (let a = 0; a < 4; a++) {
-                let anakTasks = [];
-                for (let d = 0; d < 30; d++) {
-                    let hari = new Array(tasks.length).fill(0); // integer 0
-                    anakTasks.push(hari);
-                }
-                taskData.push(anakTasks);
-                redemptions.push(new Array(rewards.length).fill(0));
-            }
-        }
-
-        loadFromStorage();
-
-        // ------------------------------------------------------------
-        // TANGGAL MULAI: 19 FEBRUARI 2026 (1 RAMADAN) – KAMIS
-        // ------------------------------------------------------------
-        const monthStart = new Date(2026, 1, 19);
-
-        function getFormattedDate(dayIndex) {
-            let d = new Date(monthStart);
-            d.setDate(monthStart.getDate() + dayIndex);
-            const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
-            const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
-            const month = d.toLocaleDateString('id-ID', { month: 'short' });
-            return `Hari ${weekday} · ${day} ${month}`;
-        }
-
-        // ------------------------------------------------------------
-        // FUNGSI HITUNG POIN
-        // ------------------------------------------------------------
-        function getRawPoints() {
-            let raw = [0,0,0,0];
-            for (let a = 0; a < 4; a++) {
-                for (let d = 0; d < 30; d++) {
-                    for (let t = 0; t < tasks.length; t++) {
-                        raw[a] += taskData[a][d][t] * tasks[t].point;
+                // Inisialisasi taskData dengan 0
+                taskData = [];
+                for (let a = 0; a < children.length; a++) {
+                    taskData[a] = [];
+                    for (let d = 0; d < 30; d++) {
+                        taskData[a][d] = new Array(tasks.length).fill(0);
                     }
                 }
-            }
-            return raw;
-        }
 
-        function getSpentPoints() {
-            let spent = [0,0,0,0];
-            for (let a = 0; a < 4; a++) {
-                for (let r = 0; r < rewards.length; r++) {
-                    spent[a] += redemptions[a][r] * rewards[r].price;
+                // Isi dari database
+                data.forEach(record => {
+                    const childIdx = children.findIndex(c => c.id === record.child_id);
+                    if (childIdx === -1) return;
+                    const day = record.day_index;
+                    const taskId = record.task_id;
+                    const taskIdx = taskId - 1;
+                    if (day >= 0 && day < 30 && taskIdx >= 0 && taskIdx < tasks.length) {
+                        taskData[childIdx][day][taskIdx] = record.count;
+                    }
+                });
+            }
+
+            async function loadRedemptions() {
+                const { data, error } = await supabaseClient
+                    .from('redemptions')
+                    .select('*');
+
+                if (error) {
+                    console.error('Gagal memuat redemptions:', error);
+                    return;
                 }
-            }
-            return spent;
-        }
 
-        function getBalance() {
-            let raw = getRawPoints();
-            let spent = getSpentPoints();
-            return raw.map((r, i) => r - spent[i]);
-        }
+                redemptions = [];
+                for (let a = 0; a < children.length; a++) {
+                    redemptions[a] = new Array(rewards.length).fill(0);
+                }
 
-        // ------------------------------------------------------------
-        // RENDER SEMUA
-        // ------------------------------------------------------------
-        let currentChild = 0;
-        let currentDay = 0;
-
-        function renderAll() {
-            renderBalanceCards();
-            renderChildTabs();
-            renderTasks();
-            renderRewardGrid();
-        }
-
-        function renderBalanceCards() {
-            let bal = getBalance();
-            let raw = getRawPoints();
-            let html = '';
-            children.forEach((ch, idx) => {
-                html += `
-                    <div class="balance-item">
-                        <span class="avatar">${ch.icon}</span>
-                        <span class="name">${ch.short}</span>
-                        <span class="value">${bal[idx]}</span>
-                        <span class="small">total ${raw[idx]}</span>
-                    </div>
-                `;
-            });
-            document.getElementById('balanceCards').innerHTML = html;
-        }
-
-        function renderChildTabs() {
-            let html = '';
-            children.forEach((ch, idx) => {
-                html += `<button class="tab-child ${idx === currentChild ? 'active' : ''}" data-child-index="${idx}">${ch.icon} ${ch.name}</button>`;
-            });
-            document.getElementById('childTabs').innerHTML = html;
-
-            document.querySelectorAll('.tab-child').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    currentChild = parseInt(e.target.dataset.childIndex);
-                    renderAll();
-                });
-            });
-        }
-
-        function renderTasks() {
-            let dayData = taskData[currentChild][currentDay];
-            let html = '';
-            tasks.forEach((task, t) => {
-                html += `
-                    <div class="task-row">
-                        <span class="task-icon">${task.icon}</span>
-                        <span class="task-name">${task.name}</span>
-                        <span class="task-point">${task.point} poin</span>
-                        <div class="task-counter">
-                            <button class="decr" data-task="${t}">−</button>
-                            <span class="count" data-task="${t}">${dayData[t]}</span>
-                            <button class="incr" data-task="${t}">+</button>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('tasksContainer').innerHTML = html;
-
-            document.getElementById('currentDateDisplay').innerText = getFormattedDate(currentDay);
-
-            // Event listener untuk tombol + dan -
-            document.querySelectorAll('.incr').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    let taskIdx = parseInt(e.target.dataset.task);
-                    taskData[currentChild][currentDay][taskIdx] += 1;
-                    saveToStorage();
-                    renderAll();
-                });
-            });
-            document.querySelectorAll('.decr').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    let taskIdx = parseInt(e.target.dataset.task);
-                    if (taskData[currentChild][currentDay][taskIdx] > 0) {
-                        taskData[currentChild][currentDay][taskIdx] -= 1;
-                        saveToStorage();
-                        renderAll();
+                data.forEach(record => {
+                    const childIdx = children.findIndex(c => c.id === record.child_id);
+                    if (childIdx === -1) return;
+                    const rewardId = record.reward_id;
+                    const rewardIdx = rewardId - 1;
+                    if (rewardIdx >= 0 && rewardIdx < rewards.length) {
+                        redemptions[childIdx][rewardIdx] = record.count;
                     }
                 });
-            });
-        }
-
-        function renderRewardGrid() {
-            let bal = getBalance();
-            let html = '';
-            rewards.forEach((reward, r) => {
-                html += `
-                    <div class="reward-card">
-                        <div class="reward-name"><span>${reward.icon}</span> ${reward.name}</div>
-                        <div class="reward-price">${reward.price} poin</div>
-                        <div class="redeem-buttons">
-                `;
-                children.forEach((ch, c) => {
-                    let count = redemptions[c][r];
-                    let disabled = bal[c] < reward.price ? 'disabled' : '';
-                    html += `
-                        <button class="btn-redeem" data-child="${c}" data-reward="${r}" ${disabled}>
-                            ${ch.icon} ${ch.short} <span class="redeem-count">${count}</span>
-                        </button>
-                    `;
-                });
-                html += `</div></div>`;
-            });
-            document.getElementById('rewardGrid').innerHTML = html;
-
-            document.querySelectorAll('.btn-redeem').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    let child = parseInt(e.currentTarget.dataset.child);
-                    let reward = parseInt(e.currentTarget.dataset.reward);
-                    let price = rewards[reward].price;
-                    let currentBal = getBalance();
-                    if (currentBal[child] >= price) {
-                        redemptions[child][reward] += 1;
-                        saveToStorage();
-                        renderAll();
-                    }
-                });
-            });
-        }
-
-        // Navigasi tanggal
-        document.getElementById('prevDateBtn').addEventListener('click', () => {
-            if (currentDay > 0) {
-                currentDay--;
-                renderTasks();
-                renderBalanceCards();
             }
-        });
-        document.getElementById('nextDateBtn').addEventListener('click', () => {
-            if (currentDay < 29) {
-                currentDay++;
-                renderTasks();
-                renderBalanceCards();
-            }
-        });
 
-        // Reset
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            if (confirm('Ayo mulai dari awal? Semua centangan dan hadiah akan hilang.')) {
-                initializeEmpty();
-                saveToStorage();
-                currentChild = 0;
-                currentDay = 0;
+            async function loadAllData() {
+                await Promise.all([loadTaskCompletions(), loadRedemptions()]);
+                dataLoaded = true;
                 renderAll();
             }
-        });
 
-        renderAll();
-    })();
-</script>
+            // ------------------------------------------------------------
+            // FUNGSI MENYIMPAN PERUBAHAN KE SUPABASE
+            // ------------------------------------------------------------
+            async function updateTaskCompletion(childId, dayIndex, taskIdx, newCount) {
+                const taskId = taskIdx + 1;
+                const { error } = await supabaseClient
+                    .from('task_completions')
+                    .upsert({
+                        child_id: childId,
+                        day_index: dayIndex,
+                        task_id: taskId,
+                        count: newCount
+                    }, {
+                        onConflict: 'child_id, day_index, task_id'
+                    });
+
+                if (error) {
+                    console.error('Gagal update task:', error);
+                }
+            }
+
+            async function updateRedemption(childId, rewardIdx, newCount) {
+                const rewardId = rewardIdx + 1;
+                const { error } = await supabaseClient
+                    .from('redemptions')
+                    .upsert({
+                        child_id: childId,
+                        reward_id: rewardId,
+                        count: newCount
+                    }, {
+                        onConflict: 'child_id, reward_id'
+                    });
+
+                if (error) {
+                    console.error('Gagal update redemption:', error);
+                }
+            }
+
+            // ------------------------------------------------------------
+            // FUNGSI HITUNG POIN
+            // ------------------------------------------------------------
+            function getRawPoints() {
+                let raw = [0, 0, 0, 0];
+                for (let a = 0; a < 4; a++) {
+                    for (let d = 0; d < 30; d++) {
+                        for (let t = 0; t < tasks.length; t++) {
+                            raw[a] += taskData[a][d][t] * tasks[t].point;
+                        }
+                    }
+                }
+                return raw;
+            }
+
+            function getSpentPoints() {
+                let spent = [0, 0, 0, 0];
+                for (let a = 0; a < 4; a++) {
+                    for (let r = 0; r < rewards.length; r++) {
+                        spent[a] += redemptions[a][r] * rewards[r].price;
+                    }
+                }
+                return spent;
+            }
+
+            function getBalance() {
+                let raw = getRawPoints();
+                let spent = getSpentPoints();
+                return raw.map((r, i) => r - spent[i]);
+            }
+
+            // ------------------------------------------------------------
+            // RENDER FUNCTIONS
+            // ------------------------------------------------------------
+            function renderAll() {
+                if (!dataLoaded) return;
+                renderBalanceCards();
+                renderChildTabs();
+                renderTasks();
+                renderRewardGrid();
+            }
+
+            function renderBalanceCards() {
+                let bal = getBalance();
+                let raw = getRawPoints();
+                let html = '';
+                children.forEach((ch, idx) => {
+                    html += `
+            <div class="balance-item">
+                <span class="avatar">${ch.icon}</span>
+                <span class="name">${ch.short}</span>
+                <span class="value">${bal[idx]}</span>
+                <span class="small">total ${raw[idx]}</span>
+            </div>
+        `;
+                });
+                document.getElementById('balanceCards').innerHTML = html;
+            }
+
+            function renderChildTabs() {
+                let html = '';
+                children.forEach((ch, idx) => {
+                    html += `<button class="tab-child ${idx === currentChild ? 'active' : ''}" data-child-index="${idx}">${ch.icon} ${ch.name}</button>`;
+                });
+                document.getElementById('childTabs').innerHTML = html;
+
+                document.querySelectorAll('.tab-child').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        currentChild = parseInt(e.target.dataset.childIndex);
+                        renderAll();
+                    });
+                });
+            }
+
+            function renderTasks() {
+                let dayData = taskData[currentChild][currentDay];
+                let html = '';
+                tasks.forEach((task, t) => {
+                    html += `
+            <div class="task-row">
+                <span class="task-icon">${task.icon}</span>
+                <span class="task-name">${task.name}</span>
+                <span class="task-point">${task.point} poin</span>
+                <div class="task-counter">
+                    <button class="decr" data-task="${t}">−</button>
+                    <span class="count" data-task="${t}">${dayData[t]}</span>
+                    <button class="incr" data-task="${t}">+</button>
+                </div>
+            </div>
+        `;
+                });
+                document.getElementById('tasksContainer').innerHTML = html;
+
+                document.getElementById('currentDateDisplay').innerText = getFormattedDate(currentDay);
+
+                document.querySelectorAll('.incr').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        let taskIdx = parseInt(e.target.dataset.task);
+                        let newCount = taskData[currentChild][currentDay][taskIdx] + 1;
+                        taskData[currentChild][currentDay][taskIdx] = newCount;
+                        await updateTaskCompletion(children[currentChild].id, currentDay, taskIdx, newCount);
+                        renderAll();
+                    });
+                });
+                document.querySelectorAll('.decr').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        let taskIdx = parseInt(e.target.dataset.task);
+                        if (taskData[currentChild][currentDay][taskIdx] > 0) {
+                            let newCount = taskData[currentChild][currentDay][taskIdx] - 1;
+                            taskData[currentChild][currentDay][taskIdx] = newCount;
+                            await updateTaskCompletion(children[currentChild].id, currentDay, taskIdx, newCount);
+                            renderAll();
+                        }
+                    });
+                });
+            }
+
+            function renderRewardGrid() {
+                let bal = getBalance();
+                let html = '';
+                rewards.forEach((reward, r) => {
+                    html += `
+            <div class="reward-card">
+                <div class="reward-name"><span>${reward.icon}</span> ${reward.name}</div>
+                <div class="reward-price">${reward.price} poin</div>
+                <div class="redeem-buttons">
+        `;
+                    children.forEach((ch, c) => {
+                        let count = redemptions[c][r];
+                        let disabled = bal[c] < reward.price ? 'disabled' : '';
+                        html += `
+                <button class="btn-redeem" data-child="${c}" data-reward="${r}" ${disabled}>
+                    ${ch.icon} ${ch.short} <span class="redeem-count">${count}</span>
+                </button>
+            `;
+                    });
+                    html += `</div></div>`;
+                });
+                document.getElementById('rewardGrid').innerHTML = html;
+
+                document.querySelectorAll('.btn-redeem').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        let child = parseInt(e.currentTarget.dataset.child);
+                        let reward = parseInt(e.currentTarget.dataset.reward);
+                        let price = rewards[reward].price;
+                        let currentBal = getBalance();
+                        if (currentBal[child] >= price) {
+                            redemptions[child][reward] += 1;
+                            await updateRedemption(children[child].id, reward, redemptions[child][reward]);
+                            renderAll();
+                        }
+                    });
+                });
+            }
+
+            // ------------------------------------------------------------
+            // FUNGSI TANGGAL
+            // ------------------------------------------------------------
+            const monthStart = new Date(2026, 1, 19);
+
+            function getFormattedDate(dayIndex) {
+                let d = new Date(monthStart);
+                d.setDate(monthStart.getDate() + dayIndex);
+                const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
+                const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
+                const month = d.toLocaleDateString('id-ID', { month: 'short' });
+                return `Hari ${weekday} · ${day} ${month}`;
+            }
+
+            // ------------------------------------------------------------
+            // EVENT LISTENER NAVIGASI & RESET
+            // ------------------------------------------------------------
+            document.getElementById('prevDateBtn').addEventListener('click', () => {
+                if (currentDay > 0) {
+                    currentDay--;
+                    renderTasks();
+                    renderBalanceCards();
+                }
+            });
+            document.getElementById('nextDateBtn').addEventListener('click', () => {
+                if (currentDay < 29) {
+                    currentDay++;
+                    renderTasks();
+                    renderBalanceCards();
+                }
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', async () => {
+                if (confirm('Ayo mulai dari awal? Semua data tugas dan penukaran akan dihapus.')) {
+                    // Hapus semua data di Supabase (set ke 0)
+                    for (let a = 0; a < children.length; a++) {
+                        for (let d = 0; d < 30; d++) {
+                            for (let t = 0; t < tasks.length; t++) {
+                                await updateTaskCompletion(children[a].id, d, t, 0);
+                            }
+                        }
+                        for (let r = 0; r < rewards.length; r++) {
+                            await updateRedemption(children[a].id, r, 0);
+                        }
+                    }
+                    // Reload data
+                    await loadAllData();
+                    currentChild = 0;
+                    currentDay = 0;
+                    renderAll();
+                }
+            });
+
+            // ------------------------------------------------------------
+            // MULAI APLIKASI: LOAD DATA DARI SUPABASE
+            // ------------------------------------------------------------
+            loadAllData();
+        })();
+    </script>
 </body>
+
 </html>
