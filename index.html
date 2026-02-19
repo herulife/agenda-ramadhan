@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>✨ Ramadhan Ceria · 30 Hari Reward Keluarga</title>
+    <!-- Google Font & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f9f0d4 0%, #fce2c1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 16px 12px;
+        }
+        .app-container {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 60px 60px 40px 40px;
+            box-shadow: 0 30px 50px rgba(241, 143, 1, 0.2), 0 20px 40px rgba(0,60,80,0.1);
+            overflow: hidden;
+            padding: 28px 22px 35px;
+            border: 3px solid #ffffffaa;
+        }
+
+        /* HEADER Ceria */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #b43b0d, #e97c1f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+        .header h1 i {
+            background: #ffd966;
+            padding: 12px;
+            border-radius: 50%;
+            color: #b45f06;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 0 #b45f06;
+            transform: translateY(-3px);
+        }
+        .btn-reset {
+            background: #ffcf8a;
+            border: 3px solid white;
+            border-radius: 50px;
+            padding: 12px 22px;
+            font-weight: 700;
+            color: #7b4a1e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #b45f06, 0 6px 12px rgba(0,0,0,0.1);
+            transition: 0.1s ease;
+            font-size: 1rem;
+        }
+        .btn-reset:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #b45f06;
+        }
+
+        /* BALANCE CARDS – lebih gemoy */
+        .balance-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        .balance-item {
+            flex: 1 0 130px;
+            background: linear-gradient(145deg, #feeac2, #ffd9a3);
+            border-radius: 40px 40px 30px 30px;
+            padding: 14px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 3px solid white;
+            box-shadow: 0 10px 0 #bb6b2e, 0 6px 15px #e6933e80;
+            transition: 0.2s;
+        }
+        .balance-item:hover {
+            transform: scale(1.02);
+        }
+        .balance-item .avatar {
+            font-size: 2rem;
+            filter: drop-shadow(2px 4px 2px rgba(0,0,0,0.1));
+        }
+        .balance-item .name {
+            font-weight: 800;
+            color: #6b3f00;
+            font-size: 1.1rem;
+            margin: 4px 0 2px;
+        }
+        .balance-item .value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #1f6d3b;
+            line-height: 1.1;
+            text-shadow: 2px 2px 0 #ffe3b0;
+        }
+        .balance-item .small {
+            font-size: 0.8rem;
+            background: #ffffffaa;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: #563e1f;
+            font-weight: 600;
+        }
+
+        /* TAB ANAK – lucu */
+        .child-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .tab-child {
+            flex: 1 0 auto;
+            background: #ffe8c7;
+            border: 3px solid white;
+            border-radius: 50px;
+            padding: 14px 0;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #8d5200;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 115px;
+            box-shadow: 0 6px 0 #b8772e;
+        }
+        .tab-child.active {
+            background: #fb8b2c;
+            color: white;
+            box-shadow: 0 8px 0 #9f5100;
+            transform: scale(0.98);
+        }
+
+        /* NAVIGASI TANGGAL – playful */
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffeacc;
+            border-radius: 60px;
+            padding: 6px 12px;
+            margin-bottom: 24px;
+            border: 3px solid white;
+            box-shadow: 0 6px 0 #b8772e;
+        }
+        .date-nav button {
+            background: #ffb156;
+            border: 3px solid white;
+            font-size: 2rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #633d0e;
+            box-shadow: 0 4px 0 #9f5100;
+            transition: 0.1s;
+        }
+        .date-nav button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #9f5100;
+        }
+        .date-display {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #492d0b;
+            background: white;
+            padding: 10px 18px;
+            border-radius: 50px;
+            box-shadow: inset 0 -3px 0 #e6b881;
+        }
+
+        /* DAFTAR TUGAS – lebih ceria dengan ikon */
+        .tasks-list {
+            background: #fef9e6;
+            border-radius: 50px;
+            padding: 22px 18px;
+            margin-bottom: 30px;
+            border: 4px solid white;
+            box-shadow: 0 12px 0 #cc8e4b, 0 8px 20px #f1b36b;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .task-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 10px;
+            border-bottom: 2px dashed #ffc107;
+            transition: 0.2s;
+            border-radius: 40px;
+        }
+        .task-row:hover {
+            background: #ffefd2;
+        }
+        .task-check {
+            width: 28px;
+            height: 28px;
+            accent-color: #f09b22;
+            transform: scale(1.2);
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .task-check:active {
+            transform: scale(1.4);
+        }
+        .task-icon {
+            font-size: 1.5rem;
+            width: 36px;
+            text-align: center;
+            filter: drop-shadow(2px 2px 0 #ffb347);
+        }
+        .task-name {
+            flex: 1;
+            font-weight: 600;
+            color: #3b280b;
+            font-size: 1rem;
+        }
+        .task-point {
+            background: #ffd89c;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-weight: 800;
+            color: #5e3200;
+            font-size: 0.9rem;
+            border: 2px solid white;
+        }
+
+        /* REWARD SECTION – super menarik */
+        .reward-section {
+            background: #fce9cf;
+            border-radius: 60px 60px 30px 30px;
+            padding: 26px 20px;
+            border: 5px solid white;
+            box-shadow: 0 12px 0 #b8772e, 0 12px 25px #e79a4e;
+            margin-top: 25px;
+        }
+        .reward-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #793f0e;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .reward-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+            gap: 18px;
+        }
+        .reward-card {
+            background: white;
+            border-radius: 40px;
+            padding: 18px 12px;
+            border: 3px solid #fec382;
+            box-shadow: 0 8px 0 #d47f2a, 0 6px 12px rgba(0,0,0,0.1);
+            transition: 0.15s;
+        }
+        .reward-card:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #d47f2a;
+        }
+        .reward-name {
+            font-weight: 800;
+            color: #5d3b12;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .reward-price {
+            background: #fecb8b;
+            border-radius: 30px;
+            padding: 5px 14px;
+            display: inline-block;
+            font-weight: 700;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            border: 2px solid white;
+        }
+        .redeem-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .btn-redeem {
+            background: #f09b22;
+            border: 3px solid white;
+            border-radius: 40px;
+            padding: 8px 6px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 15px;
+            padding-right: 10px;
+            box-shadow: 0 4px 0 #9f5100;
+            transition: 0.1s;
+        }
+        .btn-redeem:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #9f5100;
+        }
+        .btn-redeem:disabled {
+            background: #cfa87a;
+            box-shadow: 0 4px 0 #7b572b;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .redeem-count {
+            background: #fdeaac;
+            border-radius: 30px;
+            padding: 3px 10px;
+            color: #633d0e;
+            font-weight: 800;
+        }
+
+        footer {
+            text-align: center;
+            color: #7a5d3b;
+            margin-top: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>
+            <i class="fas fa-moon"></i> 
+            Ramadhan Ceria
+        </h1>
+        <button class="btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> Mulai Lagi</button>
+    </div>
+
+    <!-- Saldo 4 anak dengan avatar (semua perempuan berjilbab) -->
+    <div class="balance-cards" id="balanceCards"></div>
+
+    <!-- Tab pilih anak -->
+    <div class="child-tabs" id="childTabs"></div>
+
+    <!-- Navigasi tanggal -->
+    <div class="date-nav">
+        <button id="prevDateBtn"><i class="fas fa-chevron-left"></i></button>
+        <span class="date-display" id="currentDateDisplay">Hari Kamis · 19 Feb</span>
+        <button id="nextDateBtn"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <!-- Daftar tugas dengan ikon -->
+    <div class="tasks-list" id="tasksContainer"></div>
+
+    <!-- Reward dengan gaya -->
+    <div class="reward-section">
+        <h2><i class="fas fa-gift"></i> Yuk Tukar Poin!</h2>
+        <div class="reward-grid" id="rewardGrid"></div>
+    </div>
+    <footer>✨ centang tugas · kumpulkan poin · tukar hadiah ✨</footer>
+</div>
+
+<script>
+    (function() {
+        // ------------------------------------------------------------
+        // DATA KONFIGURASI DENGAN IKON (perempuan pakai jilbab semua)
+        // ------------------------------------------------------------
+        const children = [
+            { id: 'kaka', name: 'Kaka Fatimah', short: 'Kaka', icon: '🧕' },
+            { id: 'teteh', name: 'Teteh Aisyah', short: 'Teteh', icon: '🧕' }, // diubah jadi jilbab
+            { id: 'kahfi', name: 'Mas Kahfi', short: 'Kahfi', icon: '👦' },
+            { id: 'zahira', name: 'Zahira', short: 'Zahira', icon: '🧕' }
+        ];
+
+        // Tugas dengan ikon yang cocok
+        const tasks = [
+            { name: "Menyapu dalam rumah", icon: "🧹", point: 1 },
+            { name: "Menyapu luar rumah", icon: "🧹", point: 1 },
+            { name: "Mengepel", icon: "🧼", point: 1 },
+            { name: "Mencuci baju", icon: "🧺", point: 2 },
+            { name: "Menjemur baju", icon: "☀️", point: 1 },
+            { name: "Mencuci piring (alat masak)", icon: "🍽️", point: 2 },
+            { name: "Mencuci piring & alat makan", icon: "🥄", point: 1 },
+            { name: "Mengerjakan Mtk 35 soal", icon: "📐", point: 3 },
+            { name: "Baca buku 5 halaman + tanya", icon: "📚", point: 3 },
+            { name: "Baca al quran 5 lembar", icon: "📖", point: 3 },
+            { name: "Menghafal al quran 3 ayat", icon: "🤲", point: 3 },
+            { name: "Tidak berantem (Zahira)", icon: "🕊️", point: 3 },
+            { name: "Mencuci sepatu semua", icon: "👟", point: 2 },
+            { name: "Merapikan tempat tidur", icon: "🛏️", point: 1 },
+            { name: "Sholat tepat waktu", icon: "🕋", point: 1 },
+            { name: "Puasa full 1 hari", icon: "🌙", point: 2 },
+            { name: "Sholat dhuha", icon: "🌅", point: 1 },
+            { name: "Sholat tarawih jamaah", icon: "🕌", point: 2 },
+            { name: "Olahraga 30 menit", icon: "⚽", point: 1 },
+            { name: "Kuliah subuh", icon: "📻", point: 2 },
+            { name: "Shalat tahajud", icon: "⭐", point: 1 }
+        ];
+
+        const rewards = [
+            { name: "Main game 30 menit", icon: "🎮", price: 10 },
+            { name: "3 risol", icon: "🥟", price: 2 },
+            { name: "3 Jely", icon: "🍮", price: 2 },
+            { name: "3 brownis", icon: "🍫", price: 2 },
+            { name: "3 bolu pisang", icon: "🍌", price: 2 },
+            { name: "Susu ultra putih", icon: "🥛", price: 2 },
+            { name: "Susu ultra coklat", icon: "🥛", price: 3 },
+            { name: "Susu ultra pink", icon: "🥛", price: 3 },
+            { name: "Beng beng", icon: "🍫", price: 2 },
+            { name: "Soto", icon: "🍲", price: 1 },
+            { name: "Mixue", icon: "🍦", price: 12 },
+            { name: "Lazato/chicken", icon: "🍗", price: 10 },
+            { name: "Mie ayam", icon: "🍜", price: 1 },
+            { name: "Qtela", icon: "🍟", price: 1 },
+            { name: "3 pastel", icon: "🥧", price: 1 },
+            { name: "koko crunch + susu", icon: "🥣", price: 1 }
+        ];
+
+        // ------------------------------------------------------------
+        // STATE: SEMUA DIMULAI DARI 0
+        // ------------------------------------------------------------
+        let taskData = [];      // [anak][hari][tugas] = boolean
+        let redemptions = [];   // [anak][reward] = jumlah
+
+        function initializeEmpty() {
+            taskData = [];
+            redemptions = [];
+            for (let a = 0; a < 4; a++) {
+                let anakTasks = [];
+                for (let d = 0; d < 30; d++) {
+                    let hari = new Array(tasks.length).fill(false);
+                    anakTasks.push(hari);
+                }
+                taskData.push(anakTasks);
+                redemptions.push(new Array(rewards.length).fill(0));
+            }
+        }
+        initializeEmpty();
+
+        // ------------------------------------------------------------
+        // TANGGAL MULAI: 19 FEBRUARI 2026 (1 RAMADAN) – KAMIS
+        // ------------------------------------------------------------
+        const monthStart = new Date(2026, 1, 19); // 19 Feb 2026
+
+        function getFormattedDate(dayIndex) {
+            let d = new Date(monthStart);
+            d.setDate(monthStart.getDate() + dayIndex);
+            const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' }); // "Kamis", "Jumat", dll
+            const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
+            const month = d.toLocaleDateString('id-ID', { month: 'short' }); // "Feb"
+            return `Hari ${weekday} · ${day} ${month}`;
+        }
+
+        // ------------------------------------------------------------
+        // FUNGSI HITUNG POIN
+        // ------------------------------------------------------------
+        function getRawPoints() {
+            let raw = [0,0,0,0];
+            for (let a = 0; a < 4; a++) {
+                for (let d = 0; d < 30; d++) {
+                    for (let t = 0; t < tasks.length; t++) {
+                        if (taskData[a][d][t]) {
+                            raw[a] += tasks[t].point;
+                        }
+                    }
+                }
+            }
+            return raw;
+        }
+
+        function getSpentPoints() {
+            let spent = [0,0,0,0];
+            for (let a = 0; a < 4; a++) {
+                for (let r = 0; r < rewards.length; r++) {
+                    spent[a] += redemptions[a][r] * rewards[r].price;
+                }
+            }
+            return spent;
+        }
+
+        function getBalance() {
+            let raw = getRawPoints();
+            let spent = getSpentPoints();
+            return raw.map((r, i) => r - spent[i]);
+        }
+
+        // ------------------------------------------------------------
+        // RENDER SEMUA
+        // ------------------------------------------------------------
+        let currentChild = 0;
+        let currentDay = 0;
+
+        function renderAll() {
+            renderBalanceCards();
+            renderChildTabs();
+            renderTasks();
+            renderRewardGrid();
+        }
+
+        function renderBalanceCards() {
+            let bal = getBalance();
+            let raw = getRawPoints();
+            let html = '';
+            children.forEach((ch, idx) => {
+                html += `
+                    <div class="balance-item">
+                        <span class="avatar">${ch.icon}</span>
+                        <span class="name">${ch.short}</span>
+                        <span class="value">${bal[idx]}</span>
+                        <span class="small">total ${raw[idx]}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('balanceCards').innerHTML = html;
+        }
+
+        function renderChildTabs() {
+            let html = '';
+            children.forEach((ch, idx) => {
+                html += `<button class="tab-child ${idx === currentChild ? 'active' : ''}" data-child-index="${idx}">${ch.icon} ${ch.name}</button>`;
+            });
+            document.getElementById('childTabs').innerHTML = html;
+
+            document.querySelectorAll('.tab-child').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentChild = parseInt(e.target.dataset.childIndex);
+                    renderAll();
+                });
+            });
+        }
+
+        function renderTasks() {
+            let dayData = taskData[currentChild][currentDay];
+            let html = '';
+            tasks.forEach((task, t) => {
+                html += `
+                    <div class="task-row">
+                        <input type="checkbox" class="task-check" data-task="${t}" ${dayData[t] ? 'checked' : ''}>
+                        <span class="task-icon">${task.icon}</span>
+                        <span class="task-name">${task.name}</span>
+                        <span class="task-point">${task.point}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('tasksContainer').innerHTML = html;
+
+            let dateStr = getFormattedDate(currentDay);
+            document.getElementById('currentDateDisplay').innerText = dateStr; // langsung pakai format hari
+
+            document.querySelectorAll('.task-check').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    let taskIdx = parseInt(e.target.dataset.task);
+                    let isChecked = e.target.checked;
+                    taskData[currentChild][currentDay][taskIdx] = isChecked;
+                    renderBalanceCards();
+                    renderRewardGrid();
+                });
+            });
+        }
+
+        function renderRewardGrid() {
+            let bal = getBalance();
+            let html = '';
+            rewards.forEach((reward, r) => {
+                html += `
+                    <div class="reward-card">
+                        <div class="reward-name"><span>${reward.icon}</span> ${reward.name}</div>
+                        <div class="reward-price">${reward.price} poin</div>
+                        <div class="redeem-buttons">
+                `;
+                children.forEach((ch, c) => {
+                    let count = redemptions[c][r];
+                    let disabled = bal[c] < reward.price ? 'disabled' : '';
+                    html += `
+                        <button class="btn-redeem" data-child="${c}" data-reward="${r}" ${disabled}>
+                            ${ch.icon} ${ch.short} <span class="redeem-count">${count}</span>
+                        </button>
+                    `;
+                });
+                html += `</div></div>`;
+            });
+            document.getElementById('rewardGrid').innerHTML = html;
+
+            document.querySelectorAll('.btn-redeem').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    let child = parseInt(e.currentTarget.dataset.child);
+                    let reward = parseInt(e.currentTarget.dataset.reward);
+                    let price = rewards[reward].price;
+                    let currentBal = getBalance();
+                    if (currentBal[child] >= price) {
+                        redemptions[child][reward] += 1;
+                        renderAll();
+                    }
+                });
+            });
+        }
+
+        // Navigasi tanggal
+        document.getElementById('prevDateBtn').addEventListener('click', () => {
+            if (currentDay > 0) {
+                currentDay--;
+                renderTasks();
+                renderBalanceCards();
+            }
+        });
+        document.getElementById('nextDateBtn').addEventListener('click', () => {
+            if (currentDay < 29) {
+                currentDay++;
+                renderTasks();
+                renderBalanceCards();
+            }
+        });
+
+        // Reset
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Ayo mulai dari awal? Semua centangan dan hadiah akan hilang.')) {
+                initializeEmpty();
+                currentChild = 0;
+                currentDay = 0;
+                renderAll();
+            }
+        });
+
+        renderAll();
+    })();
+</script>
+</body>
+</html>
