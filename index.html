@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -200,7 +201,7 @@
             box-shadow: inset 0 -3px 0 #e6b881;
         }
 
-        /* DAFTAR TUGAS – lebih ceria dengan ikon */
+        /* DAFTAR TUGAS – dengan input number */
         .tasks-list {
             background: #fef9e6;
             border-radius: 50px;
@@ -223,17 +224,6 @@
         .task-row:hover {
             background: #ffefd2;
         }
-        .task-check {
-            width: 28px;
-            height: 28px;
-            accent-color: #f09b22;
-            transform: scale(1.2);
-            cursor: pointer;
-            transition: 0.1s;
-        }
-        .task-check:active {
-            transform: scale(1.4);
-        }
         .task-icon {
             font-size: 1.5rem;
             width: 36px;
@@ -254,6 +244,39 @@
             color: #5e3200;
             font-size: 0.9rem;
             border: 2px solid white;
+            white-space: nowrap;
+        }
+        .task-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .task-counter button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #ffb156;
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #9f5100;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .task-counter button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #9f5100;
+        }
+        .task-counter span {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #5e3200;
         }
 
         /* REWARD SECTION – super menarik */
@@ -369,7 +392,7 @@
         <button class="btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> Mulai Lagi</button>
     </div>
 
-    <!-- Saldo 4 anak dengan avatar (semua perempuan berjilbab) -->
+    <!-- Saldo 4 anak dengan avatar (semua perempuan pakai jilbab) -->
     <div class="balance-cards" id="balanceCards"></div>
 
     <!-- Tab pilih anak -->
@@ -382,7 +405,7 @@
         <button id="nextDateBtn"><i class="fas fa-chevron-right"></i></button>
     </div>
 
-    <!-- Daftar tugas dengan ikon -->
+    <!-- Daftar tugas dengan counter -->
     <div class="tasks-list" id="tasksContainer"></div>
 
     <!-- Reward dengan gaya -->
@@ -390,22 +413,22 @@
         <h2><i class="fas fa-gift"></i> Yuk Tukar Poin!</h2>
         <div class="reward-grid" id="rewardGrid"></div>
     </div>
-    <footer>✨ centang tugas · kumpulkan poin · tukar hadiah ✨</footer>
+    <footer>✨ klik + / - untuk catat jumlah tugas · poin otomatis ✨</footer>
 </div>
 
 <script>
     (function() {
         // ------------------------------------------------------------
-        // DATA KONFIGURASI DENGAN IKON (perempuan pakai jilbab semua)
+        // DATA KONFIGURASI DENGAN IKON (perempuan semua pakai jilbab)
         // ------------------------------------------------------------
         const children = [
             { id: 'kaka', name: 'Kaka Fatimah', short: 'Kaka', icon: '🧕' },
-            { id: 'teteh', name: 'Teteh Aisyah', short: 'Teteh', icon: '🧕' }, // diubah jadi jilbab
+            { id: 'teteh', name: 'Teteh Aisyah', short: 'Teteh', icon: '🧕' },
             { id: 'kahfi', name: 'Mas Kahfi', short: 'Kahfi', icon: '👦' },
             { id: 'zahira', name: 'Zahira', short: 'Zahira', icon: '🧕' }
         ];
 
-        // Tugas dengan ikon yang cocok
+        // Tugas dengan ikon dan poin (per kali)
         const tasks = [
             { name: "Menyapu dalam rumah", icon: "🧹", point: 1 },
             { name: "Menyapu luar rumah", icon: "🧹", point: 1 },
@@ -421,7 +444,11 @@
             { name: "Tidak berantem (Zahira)", icon: "🕊️", point: 3 },
             { name: "Mencuci sepatu semua", icon: "👟", point: 2 },
             { name: "Merapikan tempat tidur", icon: "🛏️", point: 1 },
-            { name: "Sholat tepat waktu", icon: "🕋", point: 1 },
+            { name: "Sholat Subuh", icon: "🕋", point: 1 },
+            { name: "Sholat Dzuhur", icon: "🕋", point: 1 },
+            { name: "Sholat Ashar", icon: "🕋", point: 1 },
+            { name: "Sholat Maghrib", icon: "🕋", point: 1 },
+            { name: "Sholat Isya", icon: "🕋", point: 1 },
             { name: "Puasa full 1 hari", icon: "🌙", point: 2 },
             { name: "Sholat dhuha", icon: "🌅", point: 1 },
             { name: "Sholat tarawih jamaah", icon: "🕌", point: 2 },
@@ -430,6 +457,7 @@
             { name: "Shalat tahajud", icon: "⭐", point: 1 }
         ];
 
+        // Reward (Soto dan Mie ayam poin 10)
         const rewards = [
             { name: "Main game 30 menit", icon: "🎮", price: 10 },
             { name: "3 risol", icon: "🥟", price: 2 },
@@ -440,20 +468,45 @@
             { name: "Susu ultra coklat", icon: "🥛", price: 3 },
             { name: "Susu ultra pink", icon: "🥛", price: 3 },
             { name: "Beng beng", icon: "🍫", price: 2 },
-            { name: "Soto", icon: "🍲", price: 1 },
+            { name: "Soto", icon: "🍲", price: 10 },      // diubah jadi 10
             { name: "Mixue", icon: "🍦", price: 12 },
             { name: "Lazato/chicken", icon: "🍗", price: 10 },
-            { name: "Mie ayam", icon: "🍜", price: 1 },
+            { name: "Mie ayam", icon: "🍜", price: 10 },   // 10 poin
             { name: "Qtela", icon: "🍟", price: 1 },
             { name: "3 pastel", icon: "🥧", price: 1 },
             { name: "koko crunch + susu", icon: "🥣", price: 1 }
         ];
 
         // ------------------------------------------------------------
-        // STATE: SEMUA DIMULAI DARI 0
+        // STATE: DATA DISIMPAN DI LOCALSTORAGE (integer untuk jumlah)
         // ------------------------------------------------------------
-        let taskData = [];      // [anak][hari][tugas] = boolean
+        let taskData = [];      // [anak][hari][tugas] = jumlah (integer)
         let redemptions = [];   // [anak][reward] = jumlah
+
+        function saveToStorage() {
+            const data = {
+                taskData: taskData,
+                redemptions: redemptions
+            };
+            localStorage.setItem('ramadhanCeriaData', JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('ramadhanCeriaData');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    taskData = data.taskData;
+                    redemptions = data.redemptions;
+                    if (!taskData || taskData.length !== 4) throw new Error('Invalid data');
+                } catch (e) {
+                    console.warn('Gagal memuat data, gunakan default');
+                    initializeEmpty();
+                }
+            } else {
+                initializeEmpty();
+            }
+        }
 
         function initializeEmpty() {
             taskData = [];
@@ -461,26 +514,27 @@
             for (let a = 0; a < 4; a++) {
                 let anakTasks = [];
                 for (let d = 0; d < 30; d++) {
-                    let hari = new Array(tasks.length).fill(false);
+                    let hari = new Array(tasks.length).fill(0); // integer 0
                     anakTasks.push(hari);
                 }
                 taskData.push(anakTasks);
                 redemptions.push(new Array(rewards.length).fill(0));
             }
         }
-        initializeEmpty();
+
+        loadFromStorage();
 
         // ------------------------------------------------------------
         // TANGGAL MULAI: 19 FEBRUARI 2026 (1 RAMADAN) – KAMIS
         // ------------------------------------------------------------
-        const monthStart = new Date(2026, 1, 19); // 19 Feb 2026
+        const monthStart = new Date(2026, 1, 19);
 
         function getFormattedDate(dayIndex) {
             let d = new Date(monthStart);
             d.setDate(monthStart.getDate() + dayIndex);
-            const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' }); // "Kamis", "Jumat", dll
+            const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
             const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
-            const month = d.toLocaleDateString('id-ID', { month: 'short' }); // "Feb"
+            const month = d.toLocaleDateString('id-ID', { month: 'short' });
             return `Hari ${weekday} · ${day} ${month}`;
         }
 
@@ -492,9 +546,7 @@
             for (let a = 0; a < 4; a++) {
                 for (let d = 0; d < 30; d++) {
                     for (let t = 0; t < tasks.length; t++) {
-                        if (taskData[a][d][t]) {
-                            raw[a] += tasks[t].point;
-                        }
+                        raw[a] += taskData[a][d][t] * tasks[t].point;
                     }
                 }
             }
@@ -568,25 +620,38 @@
             tasks.forEach((task, t) => {
                 html += `
                     <div class="task-row">
-                        <input type="checkbox" class="task-check" data-task="${t}" ${dayData[t] ? 'checked' : ''}>
                         <span class="task-icon">${task.icon}</span>
                         <span class="task-name">${task.name}</span>
-                        <span class="task-point">${task.point}</span>
+                        <span class="task-point">${task.point} poin</span>
+                        <div class="task-counter">
+                            <button class="decr" data-task="${t}">−</button>
+                            <span class="count" data-task="${t}">${dayData[t]}</span>
+                            <button class="incr" data-task="${t}">+</button>
+                        </div>
                     </div>
                 `;
             });
             document.getElementById('tasksContainer').innerHTML = html;
 
-            let dateStr = getFormattedDate(currentDay);
-            document.getElementById('currentDateDisplay').innerText = dateStr; // langsung pakai format hari
+            document.getElementById('currentDateDisplay').innerText = getFormattedDate(currentDay);
 
-            document.querySelectorAll('.task-check').forEach(cb => {
-                cb.addEventListener('change', (e) => {
+            // Event listener untuk tombol + dan -
+            document.querySelectorAll('.incr').forEach(btn => {
+                btn.addEventListener('click', (e) => {
                     let taskIdx = parseInt(e.target.dataset.task);
-                    let isChecked = e.target.checked;
-                    taskData[currentChild][currentDay][taskIdx] = isChecked;
-                    renderBalanceCards();
-                    renderRewardGrid();
+                    taskData[currentChild][currentDay][taskIdx] += 1;
+                    saveToStorage();
+                    renderAll();
+                });
+            });
+            document.querySelectorAll('.decr').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    let taskIdx = parseInt(e.target.dataset.task);
+                    if (taskData[currentChild][currentDay][taskIdx] > 0) {
+                        taskData[currentChild][currentDay][taskIdx] -= 1;
+                        saveToStorage();
+                        renderAll();
+                    }
                 });
             });
         }
@@ -622,6 +687,7 @@
                     let currentBal = getBalance();
                     if (currentBal[child] >= price) {
                         redemptions[child][reward] += 1;
+                        saveToStorage();
                         renderAll();
                     }
                 });
@@ -648,6 +714,7 @@
         document.getElementById('resetBtn').addEventListener('click', () => {
             if (confirm('Ayo mulai dari awal? Semua centangan dan hadiah akan hilang.')) {
                 initializeEmpty();
+                saveToStorage();
                 currentChild = 0;
                 currentDay = 0;
                 renderAll();
