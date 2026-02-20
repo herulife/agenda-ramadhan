@@ -71,8 +71,8 @@
             background: #ffcf8a;
             border: 3px solid white;
             border-radius: 50%;
-            width: 48px;
-            height: 48px;
+            width: 38px;
+            height: 38px;
             padding: 0;
             display: flex;
             align-items: center;
@@ -846,6 +846,25 @@
                     }
                 }
             });
+
+            // ------------------------------------------------------------
+            // AUTO SELECT HARI INI
+            // ------------------------------------------------------------
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Putar ke jam 00:00
+
+            // Hitung selisih hari dari mulai Ramadhan (19 Feb 2026)
+            if (today >= monthStart) {
+                const diffTime = today - monthStart;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                // Pastikan range antara 0 - 29
+                if (diffDays >= 0 && diffDays < 30) {
+                    currentDay = diffDays;
+                } else if (diffDays >= 30) {
+                    currentDay = 29; // Mentok di hari terakhir jika sudah lewat
+                }
+            }
 
             // ------------------------------------------------------------
             // MULAI APLIKASI
