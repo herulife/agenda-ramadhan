@@ -798,7 +798,8 @@
                 const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
                 const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
                 const month = d.toLocaleDateString('id-ID', { month: 'short' });
-                return `Hari ${weekday} · ${day} ${month}`;
+                const year = d.getFullYear();
+                return `Hari ${weekday} · ${day} ${month} ${year}`;
             }
 
             // ------------------------------------------------------------
