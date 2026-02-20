@@ -451,9 +451,15 @@
 
     <script>
         (function () {
-         
+            // ------------------------------------------------------------
+            // KONFIGURASI API (sesuaikan dengan endpoint yang sudah berjalan)
+            // ------------------------------------------------------------
+            // ------------------------------------------------------------
+            // KONFIGURASI API (sesuaikan dengan endpoint yang sudah berjalan)
+            // ------------------------------------------------------------
+            // Gunakan HTTPS agar bisa di-hosting di GitHub Pages tanpa Mixed Content Error
             const API_URL = 'https://cintabuku.com/ramadhan/api';
-            
+            // Jika testing lokal/HTTP bisa pakai: 'http://103.107.206.10:3005/api';
 
             // ------------------------------------------------------------
             // DATA STATIS (harus sama dengan isi database)
@@ -816,23 +822,28 @@
             // ------------------------------------------------------------
             // TOMBOL RESET
             // ------------------------------------------------------------
+            // ------------------------------------------------------------
+            // TOMBOL RESET
+            // ------------------------------------------------------------
             document.getElementById('resetBtn').addEventListener('click', async () => {
-                if (confirm('Mulai dari awal? Semua progres tugas dan penukaran reward akan dihapus.')) {
-                    // Reset task completions
-                    for (let a = 0; a < children.length; a++) {
-                        for (let d = 0; d < 30; d++) {
-                            for (let t = 0; t < tasks.length; t++) {
-                                await updateTaskCompletion(children[a].id, d, t, 0);
-                            }
-                        }
-                        for (let r = 0; r < rewards.length; r++) {
-                            await updateRedemption(children[a].id, r, 0);
-                        }
+                if (confirm('Mulai dari awal? Semua progres tugas dan penukaran reward akan dihapus secara permanen.')) {
+                    try {
+                        const response = await fetch(`${API_URL}/reset`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        if (!response.ok) throw new Error('Gagal mereset data');
+
+                        // Reload data after reset
+                        await loadAllData();
+                        currentChild = 0;
+                        currentDay = 0;
+                        renderAll();
+                        alert('Semua data berhasil direset ke 0!');
+                    } catch (error) {
+                        console.error('Reset error:', error);
+                        alert('Gagal mereset data. Pastikan koneksi internet lancar.');
                     }
-                    await loadAllData();
-                    currentChild = 0;
-                    currentDay = 0;
-                    renderAll();
                 }
             });
 
