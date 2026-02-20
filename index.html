@@ -8,8 +8,6 @@
     <!-- Google Font & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -39,7 +37,6 @@
             border: 3px solid #ffffffaa;
         }
 
-        /* HEADER Ceria */
         .header {
             display: flex;
             flex-wrap: wrap;
@@ -73,17 +70,18 @@
         .btn-reset {
             background: #ffcf8a;
             border: 3px solid white;
-            border-radius: 50px;
-            padding: 12px 22px;
-            font-weight: 700;
-            color: #7b4a1e;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            padding: 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
             cursor: pointer;
             box-shadow: 0 8px 0 #b45f06, 0 6px 12px rgba(0, 0, 0, 0.1);
             transition: 0.1s ease;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            color: #7b4a1e;
         }
 
         .btn-reset:active {
@@ -91,7 +89,6 @@
             box-shadow: 0 2px 0 #b45f06;
         }
 
-        /* BALANCE CARDS – lebih gemoy */
         .balance-cards {
             display: flex;
             flex-wrap: wrap;
@@ -146,7 +143,6 @@
             font-weight: 600;
         }
 
-        /* TAB ANAK – lucu */
         .child-tabs {
             display: flex;
             gap: 8px;
@@ -176,7 +172,6 @@
             transform: scale(0.98);
         }
 
-        /* NAVIGASI TANGGAL – playful */
         .date-nav {
             display: flex;
             align-items: center;
@@ -220,7 +215,6 @@
             box-shadow: inset 0 -3px 0 #e6b881;
         }
 
-        /* DAFTAR TUGAS – dengan input number */
         .tasks-list {
             background: #fef9e6;
             border-radius: 50px;
@@ -307,7 +301,6 @@
             color: #5e3200;
         }
 
-        /* REWARD SECTION – super menarik */
         .reward-section {
             background: #fce9cf;
             border-radius: 60px 60px 30px 30px;
@@ -429,10 +422,10 @@
                 <i class="fas fa-moon"></i>
                 Ramadhan Ceria
             </h1>
-            <button class="btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> Mulai Lagi</button>
+            <button class="btn-reset" id="resetBtn" title="Reset semua progres"><i class="fas fa-undo-alt"></i></button>
         </div>
 
-        <!-- Saldo 4 anak dengan avatar -->
+        <!-- Saldo 4 anak -->
         <div class="balance-cards" id="balanceCards"></div>
 
         <!-- Tab pilih anak -->
@@ -445,10 +438,10 @@
             <button id="nextDateBtn"><i class="fas fa-chevron-right"></i></button>
         </div>
 
-        <!-- Daftar tugas dengan counter -->
+        <!-- Daftar tugas -->
         <div class="tasks-list" id="tasksContainer"></div>
 
-        <!-- Reward dengan gaya -->
+        <!-- Reward -->
         <div class="reward-section">
             <h2><i class="fas fa-gift"></i> Yuk Tukar Poin!</h2>
             <div class="reward-grid" id="rewardGrid"></div>
@@ -459,16 +452,17 @@
     <script>
         (function () {
             // ------------------------------------------------------------
-            // KONFIGURASI SUPABASE (isi dengan project Anda)
+            // KONFIGURASI API (sesuaikan dengan endpoint yang sudah berjalan)
             // ------------------------------------------------------------
-            const supabaseUrl = 'https://aduqtvddwbvwttfxhauk.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkdXF0dmRkd2J2d3R0ZnhoYXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTQ5NjIsImV4cCI6MjA4NzA5MDk2Mn0.Ec7qh1v1Wp_GW7dM7F9hsN89cTo9hlbRXLgZWE1jlPg';
-
-            // Inisialisasi Supabase client dengan nama berbeda
-            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+            // ------------------------------------------------------------
+            // KONFIGURASI API (sesuaikan dengan endpoint yang sudah berjalan)
+            // ------------------------------------------------------------
+            // Gunakan HTTPS agar bisa di-hosting di GitHub Pages tanpa Mixed Content Error
+            const API_URL = 'https://cintabuku.com/ramadhan/api';
+            // Jika testing lokal/HTTP bisa pakai: 'http://103.107.206.10:3005/api';
 
             // ------------------------------------------------------------
-            // DATA STATIS (sama seperti sebelumnya, harga Soto & Mie ayam = 10)
+            // DATA STATIS (harus sama dengan isi database)
             // ------------------------------------------------------------
             const children = [
                 { id: 'kaka', name: 'Kaka Fatimah', short: 'Kaka', icon: '🧕' },
@@ -515,10 +509,10 @@
                 { name: "Susu ultra coklat", icon: "🥛", price: 3 },
                 { name: "Susu ultra pink", icon: "🥛", price: 3 },
                 { name: "Beng beng", icon: "🍫", price: 2 },
-                { name: "Soto", icon: "🍲", price: 10 },      // diperbaiki
+                { name: "Soto", icon: "🍲", price: 10 },
                 { name: "Mixue", icon: "🍦", price: 15 },
                 { name: "Lazato/chicken", icon: "🍗", price: 15 },
-                { name: "Mie ayam", icon: "🍜", price: 10 },   // diperbaiki
+                { name: "Mie ayam", icon: "🍜", price: 10 },
                 { name: "Qtela", icon: "🍟", price: 1 },
                 { name: "3 pastel", icon: "🥧", price: 1 },
                 { name: "koko crunch + susu", icon: "🥣", price: 3 },
@@ -526,73 +520,71 @@
             ];
 
             // ------------------------------------------------------------
-            // STATE: Data akan diisi dari Supabase
+            // STATE
             // ------------------------------------------------------------
-            let taskData = [];
-            let redemptions = [];
+            let taskData = [];      // [anak][hari][tugas] = integer
+            let redemptions = [];   // [anak][reward] = integer
             let dataLoaded = false;
             let currentChild = 0;
             let currentDay = 0;
 
             // ------------------------------------------------------------
-            // FUNGSI MEMUAT DATA DARI SUPABASE
+            // FUNGSI MEMUAT DATA DARI API
             // ------------------------------------------------------------
             async function loadTaskCompletions() {
-                const { data, error } = await supabaseClient
-                    .from('task_completions')
-                    .select('*');
+                try {
+                    const response = await fetch(`${API_URL}/task-completions`);
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                    const data = await response.json();
 
-                if (error) {
+                    // Inisialisasi taskData dengan 0
+                    taskData = [];
+                    for (let a = 0; a < children.length; a++) {
+                        taskData[a] = [];
+                        for (let d = 0; d < 30; d++) {
+                            taskData[a][d] = new Array(tasks.length).fill(0);
+                        }
+                    }
+
+                    // Isi dari database
+                    data.forEach(record => {
+                        const childIdx = children.findIndex(c => c.id === record.child_id);
+                        if (childIdx === -1) return;
+                        const day = record.day_index;
+                        const taskId = record.task_id;
+                        const taskIdx = taskId - 1;
+                        if (day >= 0 && day < 30 && taskIdx >= 0 && taskIdx < tasks.length) {
+                            taskData[childIdx][day][taskIdx] = record.count;
+                        }
+                    });
+                } catch (error) {
                     console.error('Gagal memuat task completions:', error);
-                    return;
                 }
-
-                // Inisialisasi taskData dengan 0
-                taskData = [];
-                for (let a = 0; a < children.length; a++) {
-                    taskData[a] = [];
-                    for (let d = 0; d < 30; d++) {
-                        taskData[a][d] = new Array(tasks.length).fill(0);
-                    }
-                }
-
-                // Isi dari database
-                data.forEach(record => {
-                    const childIdx = children.findIndex(c => c.id === record.child_id);
-                    if (childIdx === -1) return;
-                    const day = record.day_index;
-                    const taskId = record.task_id;
-                    const taskIdx = taskId - 1;
-                    if (day >= 0 && day < 30 && taskIdx >= 0 && taskIdx < tasks.length) {
-                        taskData[childIdx][day][taskIdx] = record.count;
-                    }
-                });
             }
 
             async function loadRedemptions() {
-                const { data, error } = await supabaseClient
-                    .from('redemptions')
-                    .select('*');
+                try {
+                    const response = await fetch(`${API_URL}/redemptions`);
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                    const data = await response.json();
 
-                if (error) {
-                    console.error('Gagal memuat redemptions:', error);
-                    return;
-                }
-
-                redemptions = [];
-                for (let a = 0; a < children.length; a++) {
-                    redemptions[a] = new Array(rewards.length).fill(0);
-                }
-
-                data.forEach(record => {
-                    const childIdx = children.findIndex(c => c.id === record.child_id);
-                    if (childIdx === -1) return;
-                    const rewardId = record.reward_id;
-                    const rewardIdx = rewardId - 1;
-                    if (rewardIdx >= 0 && rewardIdx < rewards.length) {
-                        redemptions[childIdx][rewardIdx] = record.count;
+                    redemptions = [];
+                    for (let a = 0; a < children.length; a++) {
+                        redemptions[a] = new Array(rewards.length).fill(0);
                     }
-                });
+
+                    data.forEach(record => {
+                        const childIdx = children.findIndex(c => c.id === record.child_id);
+                        if (childIdx === -1) return;
+                        const rewardId = record.reward_id;
+                        const rewardIdx = rewardId - 1;
+                        if (rewardIdx >= 0 && rewardIdx < rewards.length) {
+                            redemptions[childIdx][rewardIdx] = record.count;
+                        }
+                    });
+                } catch (error) {
+                    console.error('Gagal memuat redemptions:', error);
+                }
             }
 
             async function loadAllData() {
@@ -602,39 +594,41 @@
             }
 
             // ------------------------------------------------------------
-            // FUNGSI MENYIMPAN PERUBAHAN KE SUPABASE
+            // FUNGSI UPDATE KE API
             // ------------------------------------------------------------
             async function updateTaskCompletion(childId, dayIndex, taskIdx, newCount) {
                 const taskId = taskIdx + 1;
-                const { error } = await supabaseClient
-                    .from('task_completions')
-                    .upsert({
-                        child_id: childId,
-                        day_index: dayIndex,
-                        task_id: taskId,
-                        count: newCount
-                    }, {
-                        onConflict: 'child_id, day_index, task_id'
+                try {
+                    const response = await fetch(`${API_URL}/task-completions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            child_id: childId,
+                            day_index: dayIndex,
+                            task_id: taskId,
+                            count: newCount
+                        })
                     });
-
-                if (error) {
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                } catch (error) {
                     console.error('Gagal update task:', error);
                 }
             }
 
             async function updateRedemption(childId, rewardIdx, newCount) {
                 const rewardId = rewardIdx + 1;
-                const { error } = await supabaseClient
-                    .from('redemptions')
-                    .upsert({
-                        child_id: childId,
-                        reward_id: rewardId,
-                        count: newCount
-                    }, {
-                        onConflict: 'child_id, reward_id'
+                try {
+                    const response = await fetch(`${API_URL}/redemptions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            child_id: childId,
+                            reward_id: rewardId,
+                            count: newCount
+                        })
                     });
-
-                if (error) {
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                } catch (error) {
                     console.error('Gagal update redemption:', error);
                 }
             }
@@ -687,13 +681,13 @@
                 let html = '';
                 children.forEach((ch, idx) => {
                     html += `
-            <div class="balance-item">
-                <span class="avatar">${ch.icon}</span>
-                <span class="name">${ch.short}</span>
-                <span class="value">${bal[idx]}</span>
-                <span class="small">total ${raw[idx]}</span>
-            </div>
-        `;
+                    <div class="balance-item">
+                        <span class="avatar">${ch.icon}</span>
+                        <span class="name">${ch.short}</span>
+                        <span class="value">${bal[idx]}</span>
+                        <span class="small">total ${raw[idx]}</span>
+                    </div>
+                `;
                 });
                 document.getElementById('balanceCards').innerHTML = html;
             }
@@ -718,20 +712,19 @@
                 let html = '';
                 tasks.forEach((task, t) => {
                     html += `
-            <div class="task-row">
-                <span class="task-icon">${task.icon}</span>
-                <span class="task-name">${task.name}</span>
-                <span class="task-point">${task.point} poin</span>
-                <div class="task-counter">
-                    <button class="decr" data-task="${t}">−</button>
-                    <span class="count" data-task="${t}">${dayData[t]}</span>
-                    <button class="incr" data-task="${t}">+</button>
-                </div>
-            </div>
-        `;
+                    <div class="task-row">
+                        <span class="task-icon">${task.icon}</span>
+                        <span class="task-name">${task.name}</span>
+                        <span class="task-point">${task.point} poin</span>
+                        <div class="task-counter">
+                            <button class="decr" data-task="${t}">−</button>
+                            <span class="count" data-task="${t}">${dayData[t]}</span>
+                            <button class="incr" data-task="${t}">+</button>
+                        </div>
+                    </div>
+                `;
                 });
                 document.getElementById('tasksContainer').innerHTML = html;
-
                 document.getElementById('currentDateDisplay').innerText = getFormattedDate(currentDay);
 
                 document.querySelectorAll('.incr').forEach(btn => {
@@ -761,19 +754,19 @@
                 let html = '';
                 rewards.forEach((reward, r) => {
                     html += `
-            <div class="reward-card">
-                <div class="reward-name"><span>${reward.icon}</span> ${reward.name}</div>
-                <div class="reward-price">${reward.price} poin</div>
-                <div class="redeem-buttons">
-        `;
+                    <div class="reward-card">
+                        <div class="reward-name"><span>${reward.icon}</span> ${reward.name}</div>
+                        <div class="reward-price">${reward.price} poin</div>
+                        <div class="redeem-buttons">
+                `;
                     children.forEach((ch, c) => {
                         let count = redemptions[c][r];
                         let disabled = bal[c] < reward.price ? 'disabled' : '';
                         html += `
-                <button class="btn-redeem" data-child="${c}" data-reward="${r}" ${disabled}>
-                    ${ch.icon} ${ch.short} <span class="redeem-count">${count}</span>
-                </button>
-            `;
+                        <button class="btn-redeem" data-child="${c}" data-reward="${r}" ${disabled}>
+                            ${ch.icon} ${ch.short} <span class="redeem-count">${count}</span>
+                        </button>
+                    `;
                     });
                     html += `</div></div>`;
                 });
@@ -795,7 +788,7 @@
             }
 
             // ------------------------------------------------------------
-            // FUNGSI TANGGAL
+            // FUNGSI TANGGAL (1 Ramadhan 2026 = 19 Februari 2026)
             // ------------------------------------------------------------
             const monthStart = new Date(2026, 1, 19);
 
@@ -809,7 +802,7 @@
             }
 
             // ------------------------------------------------------------
-            // EVENT LISTENER NAVIGASI & RESET
+            // EVENT LISTENER NAVIGASI TANGGAL
             // ------------------------------------------------------------
             document.getElementById('prevDateBtn').addEventListener('click', () => {
                 if (currentDay > 0) {
@@ -826,9 +819,12 @@
                 }
             });
 
+            // ------------------------------------------------------------
+            // TOMBOL RESET
+            // ------------------------------------------------------------
             document.getElementById('resetBtn').addEventListener('click', async () => {
-                if (confirm('Ayo mulai dari awal? Semua data tugas dan penukaran akan dihapus.')) {
-                    // Hapus semua data di Supabase (set ke 0)
+                if (confirm('Mulai dari awal? Semua progres tugas dan penukaran reward akan dihapus.')) {
+                    // Reset task completions
                     for (let a = 0; a < children.length; a++) {
                         for (let d = 0; d < 30; d++) {
                             for (let t = 0; t < tasks.length; t++) {
@@ -839,7 +835,6 @@
                             await updateRedemption(children[a].id, r, 0);
                         }
                     }
-                    // Reload data
                     await loadAllData();
                     currentChild = 0;
                     currentDay = 0;
@@ -848,7 +843,7 @@
             });
 
             // ------------------------------------------------------------
-            // MULAI APLIKASI: LOAD DATA DARI SUPABASE
+            // MULAI APLIKASI
             // ------------------------------------------------------------
             loadAllData();
         })();
