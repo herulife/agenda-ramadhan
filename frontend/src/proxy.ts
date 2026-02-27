@@ -32,14 +32,14 @@ export function proxy(request: NextRequest) {
 
     const isGuestPage = pathname === '/login' || pathname === '/register';
     const requiresParent = pathname.startsWith('/dashboard');
-    const requiresChild = pathname.startsWith('/panel');
+    const requiresParentOrChild = pathname.startsWith('/panel'); // both parent and child can access
     const requiresSuperAdmin = pathname.startsWith('/super-admin');
 
     if (isGuestPage && role) {
         return NextResponse.redirect(new URL(homeByRole(role), request.url));
     }
 
-    if ((requiresParent || requiresChild || requiresSuperAdmin) && !role) {
+    if ((requiresParent || requiresParentOrChild || requiresSuperAdmin) && !role) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
@@ -51,9 +51,9 @@ export function proxy(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    if (requiresChild && role !== 'child') {
+    if (requiresParentOrChild && role !== 'parent' && role !== 'child') {
         const url = new URL('/unauthorized', request.url);
-        url.searchParams.set('required', 'child');
+        url.searchParams.set('required', 'parent or child');
         url.searchParams.set('current', role ?? 'unknown');
         url.searchParams.set('next', pathname);
         return NextResponse.redirect(url);

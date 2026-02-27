@@ -28,6 +28,17 @@ func ConnectDB() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
+	sqlDB, err := DB.DB()
+	if err != nil {
+		log.Fatal("Failed to get generic database object:", err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+
+	// Drop old unique index that prevented multiple completions per day
+	DB.Exec("DROP INDEX IF EXISTS idx_child_task_date")
+
 	err = DB.AutoMigrate(
 		&models.Family{},
 		&models.User{},
@@ -35,10 +46,21 @@ func ConnectDB() {
 		&models.Reward{},
 		&models.DailyLog{},
 		&models.Redemption{},
+		&models.Announcement{},
 	)
 	if err != nil {
 		log.Fatal("Failed to auto migrate database:", err)
 	}
+
+	// Fix existing tasks: set repeatable tasks to unlimited (MaxPerDay=0)
+	DB.Exec(`UPDATE tasks SET max_per_day = 0 WHERE max_per_day IS NULL OR max_per_day = 1 AND (
+		LOWER(name) LIKE '%membantu%' OR LOWER(name) LIKE '%berbagi%' OR
+		LOWER(name) LIKE '%cuci%' OR LOWER(name) LIKE '%menyapu%' OR
+		LOWER(name) LIKE '%tadarus%' OR LOWER(name) LIKE '%quran%' OR
+		LOWER(name) LIKE '%al-quran%' OR LOWER(name) LIKE '%mengaji%' OR
+		LOWER(name) LIKE '%sedekah%' OR LOWER(name) LIKE '%infaq%' OR
+		LOWER(name) LIKE '%membaca%'
+	)`)
 
 	log.Println("Database connected and migrated successfully (PostgreSQL)")
 }

@@ -71,11 +71,10 @@ func MagicTemplate(c *fiber.Ctx) error {
 		}
 
 		task := models.Task{
-			Name:     tmpl.Name,
-			Icon:     tmpl.Icon,
-			Points:   tmpl.Points,
-			FamilyID: familyID,
-			IsActive: true,
+			Name:        tmpl.Name,
+			PointReward: tmpl.Points,
+			FamilyID:    familyID,
+			IsActive:    true,
 		}
 		if err := tx.Create(&task).Error; err != nil {
 			tx.Rollback()

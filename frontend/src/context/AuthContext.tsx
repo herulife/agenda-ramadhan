@@ -91,7 +91,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAuthCookie(token);
         setToken(token);
         const decoded = decodeToken(token);
-        if (decoded) setUser(decoded);
+        if (decoded) {
+            setUser(decoded);
+            if (decoded.familyId) {
+                localStorage.setItem('familySlug', decoded.familyId);
+            }
+        }
         if (role === 'parent') router.push('/dashboard');
         else if (role === 'child') router.push('/panel');
         else if (role === 'super_admin') router.push('/super-admin');
@@ -99,6 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('familySlug');
         clearAuthCookie();
         setToken(null);
         setUser(null);

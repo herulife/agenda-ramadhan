@@ -33,7 +33,7 @@ func GetLogs(c *fiber.Ctx) error {
 	}
 
 	var logs []models.DailyLog
-	if err := database.DB.Where("child_id = ? AND date = ?", childID, date).Find(&logs).Error; err != nil {
+	if err := database.DB.Where("child_id = ? AND completed_date = ?", childID, date).Find(&logs).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Database error"})
 	}
 	return c.JSON(logs)
@@ -53,9 +53,9 @@ func SaveLogs(c *fiber.Ctx) error {
 	tx := database.DB.Begin()
 	for _, entry := range req.Logs {
 		var log models.DailyLog
-		result := tx.Where("child_id = ? AND task_id = ? AND date = ?", req.ChildID, entry.TaskID, date).First(&log)
+		result := tx.Where("child_id = ? AND task_id = ? AND completed_date = ?", req.ChildID, entry.TaskID, date).First(&log)
 		if result.Error == nil {
-			log.Quantity = entry.Quantity
+			log.EarnedPoints = entry.Quantity
 			log.Status = "verified"
 			if err := tx.Save(&log).Error; err != nil {
 				tx.Rollback()
@@ -63,11 +63,11 @@ func SaveLogs(c *fiber.Ctx) error {
 			}
 		} else {
 			newLog := models.DailyLog{
-				ChildID:  req.ChildID,
-				TaskID:   entry.TaskID,
-				Date:     date,
-				Quantity: entry.Quantity,
-				Status:   "verified",
+				ChildID:       req.ChildID,
+				TaskID:        entry.TaskID,
+				CompletedDate: date,
+				EarnedPoints:  entry.Quantity,
+				Status:        "verified",
 			}
 			if err := tx.Create(&newLog).Error; err != nil {
 				tx.Rollback()

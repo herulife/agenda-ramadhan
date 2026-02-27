@@ -11,9 +11,8 @@ func GetBalance(c *fiber.Ctx) error {
 
 	var totalPoints int64
 	err := database.DB.Model(&models.DailyLog{}).
-		Joins("JOIN tasks ON tasks.id = daily_logs.task_id").
-		Where("daily_logs.child_id = ? AND daily_logs.status = 'verified'", childID).
-		Select("COALESCE(SUM(daily_logs.quantity * tasks.points), 0)").
+		Where("child_id = ? AND status = 'verified'", childID).
+		Select("COALESCE(SUM(earned_points), 0)").
 		Scan(&totalPoints).Error
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Database error"})

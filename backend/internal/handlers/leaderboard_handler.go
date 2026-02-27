@@ -49,16 +49,15 @@ func GetLeaderboard(c *fiber.Ctx) error {
 	for _, child := range children {
 		var weekPoints int64
 		database.DB.Model(&models.DailyLog{}).
-			Joins("JOIN tasks ON tasks.id = daily_logs.task_id").
-			Where("daily_logs.child_id = ? AND daily_logs.date >= ? AND daily_logs.date <= ? AND daily_logs.status = 'verified'",
+			Where("daily_logs.child_id = ? AND daily_logs.completed_date >= ? AND daily_logs.completed_date <= ? AND daily_logs.status = 'verified'",
 				child.ID, monday, sunday).
-			Select("COALESCE(SUM(daily_logs.quantity * tasks.points), 0)").
+			Select("COALESCE(SUM(daily_logs.earned_points), 0)").
 			Scan(&weekPoints)
 
 		entries = append(entries, LeaderboardEntry{
 			ChildID:    child.ID,
 			ChildName:  child.Name,
-			Avatar:     child.Avatar,
+			Avatar:     child.AvatarIcon,
 			WeekPoints: weekPoints,
 		})
 	}

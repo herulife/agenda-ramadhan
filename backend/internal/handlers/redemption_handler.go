@@ -56,9 +56,8 @@ func CreateRedemption(c *fiber.Ctx) error {
 	// Calculate balance
 	var totalPoints int64
 	err := database.DB.Model(&models.DailyLog{}).
-		Joins("JOIN tasks ON tasks.id = daily_logs.task_id").
-		Where("daily_logs.child_id = ? AND daily_logs.status = 'verified'", req.ChildID).
-		Select("COALESCE(SUM(daily_logs.quantity * tasks.points), 0)").
+		Where("child_id = ? AND status = 'verified'", req.ChildID).
+		Select("COALESCE(SUM(earned_points), 0)").
 		Scan(&totalPoints).Error
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error calculating points"})
@@ -91,7 +90,6 @@ func CreateRedemption(c *fiber.Ctx) error {
 	redemption := models.Redemption{
 		ChildID:     req.ChildID,
 		RewardID:    req.RewardID,
-		Quantity:    req.Quantity,
 		PointsSpent: pointsRequired,
 		Status:      "pending",
 	}

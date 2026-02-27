@@ -7,10 +7,13 @@ import (
 	"github.com/username/ramadhan-ceria-backend/internal/utils"
 )
 
+func intPtr(v int) *int { return &v }
+
 type TaskRequest struct {
-	Name   string `json:"name"`
-	Icon   string `json:"icon"`
-	Points int    `json:"points"`
+	Name      string `json:"name"`
+	Icon      string `json:"icon"`
+	Points    int    `json:"points"`
+	MaxPerDay *int   `json:"max_per_day"` // nil = keep default (1), 0 = unlimited
 }
 
 func GetTasks(c *fiber.Ctx) error {
@@ -40,10 +43,14 @@ func CreateTask(c *fiber.Ctx) error {
 	}
 
 	task := models.Task{
-		Name:     req.Name,
-		Icon:     req.Icon,
-		Points:   req.Points,
-		FamilyID: familyID,
+		Name:        req.Name,
+		Icon:        req.Icon,
+		PointReward: req.Points,
+		MaxPerDay:   intPtr(1),
+		FamilyID:    familyID,
+	}
+	if req.MaxPerDay != nil {
+		task.MaxPerDay = req.MaxPerDay
 	}
 	if err := database.DB.Create(&task).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not create task"})
@@ -67,7 +74,10 @@ func UpdateTask(c *fiber.Ctx) error {
 
 	task.Name = req.Name
 	task.Icon = req.Icon
-	task.Points = req.Points
+	task.PointReward = req.Points
+	if req.MaxPerDay != nil {
+		task.MaxPerDay = req.MaxPerDay
+	}
 	if err := database.DB.Save(&task).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not update task"})
 	}

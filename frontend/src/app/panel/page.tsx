@@ -1,246 +1,492 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRoleGuard } from '@/hooks/useRoleGuard';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import useSWR from 'swr';
 import api from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default function UserPanelPage() {
-    const { logout } = useAuth();
-    const { user, loading, isAuthorized } = useRoleGuard(['child']);
-    const [tasks, setTasks] = useState<any[]>([]);
-    const [logs, setLogs] = useState<any[]>([]);
-    const [rewards, setRewards] = useState<any[]>([]);
-    const [balance, setBalance] = useState(0);
-    const [leaderboard, setLeaderboard] = useState<any[]>([]);
-    const [dataLoading, setDataLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'tasks' | 'rewards' | 'leaderboard'>('tasks');
-    const [currentDate, setCurrentDate] = useState(() => {
-        const d = new Date();
-        return d.toISOString().split('T')[0];
-    });
+const fetcher = (url: string) => api.get(url).then(res => res.data);
 
-    useEffect(() => {
-        if (loading || !isAuthorized || !user) return;
-        fetchData(user.id, currentDate);
-    }, [loading, isAuthorized, user, currentDate]);
+function getLocalDate(offset = 0) {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
-    useEffect(() => {
-        if (activeTab === 'leaderboard' && isAuthorized && user) {
-            fetchLeaderboard();
-        }
-    }, [activeTab, isAuthorized, user]);
+function formatDateDisplay(dateStr: string) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
+    const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
+    const month = d.toLocaleDateString('id-ID', { month: 'short' });
+    return `Hari ${weekday} · ${day} ${month}`;
+}
 
-    const fetchLeaderboard = async () => {
-        try {
-            const res = await api.get('/leaderboard');
-            setLeaderboard(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const fetchData = async (childId: string, date: string) => {
-        try {
-            const [tasksRes, rewardsRes, balanceRes, logsRes] = await Promise.all([
-                api.get('/tasks'),
-                api.get('/rewards'),
-                api.get(`/points/${childId}`),
-                api.get(`/logs?childId=${childId}&date=${date}`)
-            ]);
-            setTasks(tasksRes.data);
-            setRewards(rewardsRes.data);
-            setBalance(balanceRes.data.balance || 0);
-            setLogs(logsRes.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setDataLoading(false);
-        }
-    };
-
-    const updateLog = async (taskId: string, newQuantity: number) => {
-        if (!user) return;
-
-        // Optimistic update
-        setLogs(prev => {
-            const exists = prev.find(l => l.TaskID === taskId);
-            if (exists) return prev.map(l => l.TaskID === taskId ? { ...l, Quantity: newQuantity } : l);
-            return [...prev, { TaskID: taskId, Quantity: newQuantity }];
-        });
-
-        try {
-            await api.post('/logs', {
-                childId: user.id,
-                date: currentDate,
-                logs: [{ taskId, quantity: newQuantity }]
-            });
-            // Refetch balance since we added/removed points
-            const balanceRes = await api.get(`/points/${user.id}`);
-            setBalance(balanceRes.data.balance || 0);
-        } catch (err) {
-            console.error('Failed to save log', err);
-            // Optionally revert on failure
-        }
-    };
-
-    const redeemReward = async (rewardId: string, price: number) => {
-        if (balance < price) {
-            alert('Poin tidak cukup!');
-            return;
-        }
-        try {
-            await api.post('/redemptions', { reward_id: rewardId });
-            alert('Berhasil menukar hadiah. Menunggu persetujuan orang tua.');
-            if (user?.id) fetchData(user.id, currentDate);
-        } catch (err) {
-            alert('Gagal menukar hadiah.');
-        }
-    };
-
-    const changeDate = (days: number) => {
-        const d = new Date(currentDate);
-        d.setDate(d.getDate() + days);
-        setCurrentDate(d.toISOString().split('T')[0]);
-    };
-
-    const formatDate = (dateStr: string) => {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
-    };
-
-    if (loading || !isAuthorized || !user) return null;
-
+// ============================================================
+// PHASE 1: CHILD SELECTOR (Netflix-style picks)
+// ============================================================
+function ChildSelector({ children, onSelect }: { children: any[], onSelect: (child: any) => void }) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex justify-center py-6 px-4">
-            <div className="max-w-[750px] w-full bg-white/85 backdrop-blur-xl border-4 border-white/70 shadow-[0_30px_50px_rgba(241,143,1,0.2),0_20px_40px_rgba(0,60,80,0.1)] rounded-[60px_60px_40px_40px] p-6 pb-10 flex flex-col items-center">
-                <div className="flex justify-between items-center w-full mb-6">
-                    <h1 className="text-3xl font-extrabold bg-gradient-to-r from-red-700 to-orange-500 bg-clip-text text-transparent flex items-center gap-3">
-                        <i className="fas fa-moon bg-yellow-300 p-3 rounded-full text-amber-800 shadow-[0_8px_0_#b45f06] text-xl transform -translate-y-1"></i>
-                        Ramadhan Ceria
-                    </h1>
-                    <button onClick={logout} className="bg-orange-200 border-4 border-white rounded-full w-12 h-12 flex items-center justify-center text-xl text-amber-900 shadow-[0_8px_0_#b45f06] hover:translate-y-1 hover:shadow-[0_2px_0_#b45f06] transition">
-                        <i className="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
+        <div className="min-h-screen flex justify-center items-center p-4 font-sans select-none" style={{ background: 'linear-gradient(145deg, #f9f0d4 0%, #fce2c1 100%)' }}>
+            <div className="w-full max-w-lg text-center" style={{
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '60px',
+                boxShadow: '0 30px 50px rgba(241,143,1,0.2)',
+                border: '3px solid rgba(255,255,255,0.67)',
+                padding: '40px 24px',
+            }}>
+                <div className="mb-2 text-5xl">🌙</div>
+                <h1 className="text-2xl sm:text-3xl font-[800] mb-2" style={{
+                    background: 'linear-gradient(135deg, #b43b0d, #e97c1f)',
+                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                }}>Siapa hari ini?</h1>
+                <p className="text-[#8d5200] font-semibold mb-8">Pilih jagoan yang mau mengerjakan tugas</p>
 
-                <div className="bg-gradient-to-br from-orange-100 to-orange-200 border-4 border-white rounded-[40px_40px_30px_30px] p-4 flex flex-col items-center shadow-[0_10px_0_#bb6b2e] w-full max-w-sm mb-6">
-                    <span className="text-5xl drop-shadow-sm mb-2">{user.avatar || '👦'}</span>
-                    <span className="font-extrabold text-amber-900 text-xl">{user.name}</span>
-                    <span className="text-5xl font-black text-green-800 drop-shadow-md my-2">{balance}</span>
-                    <span className="text-sm bg-white/70 px-4 py-1.5 rounded-full font-bold text-amber-900">Total Poin Saat Ini</span>
-                </div>
-
-                <div className="w-full mb-6">
-                    <div className="flex bg-white/50 border-4 border-white rounded-[40px] p-2 gap-2 shadow-[0_6px_0_#b8772e] md:text-base text-sm font-bold overflow-x-auto hide-scrollbar">
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                    {children.map((child: any) => (
                         <button
-                            onClick={() => setActiveTab('tasks')}
-                            className={`flex-1 py-3 px-4 rounded-[30px] transition whitespace-nowrap ${activeTab === 'tasks' ? 'bg-orange-400 text-white shadow-[0_4px_0_#9f5100]' : 'text-amber-800 hover:bg-white/70 hover:shadow-sm'}`}
+                            key={child.ID}
+                            onClick={() => onSelect(child)}
+                            className="flex flex-col items-center gap-2 py-5 px-3 rounded-[40px] border-[3px] border-white transition-all hover:scale-[1.03] active:scale-95"
+                            style={{
+                                background: 'linear-gradient(145deg, #feeac2, #ffd9a3)',
+                                boxShadow: '0 8px 0 #bb6b2e, 0 6px 15px rgba(230,147,62,0.4)',
+                            }}
                         >
-                            <i className="fas fa-check-circle mr-2"></i> Tugas Harian
+                            <span className="text-5xl drop-shadow-md">{child.AvatarIcon || '👦'}</span>
+                            <span className="font-[800] text-[#6b3f00] text-lg">{child.Name}</span>
                         </button>
-                        <button
-                            onClick={() => setActiveTab('rewards')}
-                            className={`flex-1 py-3 px-4 rounded-[30px] transition whitespace-nowrap ${activeTab === 'rewards' ? 'bg-orange-400 text-white shadow-[0_4px_0_#9f5100]' : 'text-amber-800 hover:bg-white/70 hover:shadow-sm'}`}
-                        >
-                            <i className="fas fa-gift mr-2"></i> Klaim Hadiah
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('leaderboard')}
-                            className={`flex-1 py-3 px-4 rounded-[30px] transition whitespace-nowrap ${activeTab === 'leaderboard' ? 'bg-orange-400 text-white shadow-[0_4px_0_#9f5100]' : 'text-amber-800 hover:bg-white/70 hover:shadow-sm'}`}
-                        >
-                            <i className="fas fa-trophy mr-2"></i> Klasemen
-                        </button>
-                    </div>
+                    ))}
                 </div>
 
-                {activeTab === 'tasks' && (
-                    <>
-                        <div className="flex items-center justify-between bg-orange-100 border-4 border-white rounded-[60px] p-1 mb-8 shadow-[0_6px_0_#b8772e] w-full mx-auto max-w-sm">
-                            <button onClick={() => changeDate(-1)} className="bg-orange-300 border-2 border-white text-2xl w-10 h-10 rounded-full flex items-center justify-center text-amber-900 shadow-[0_4px_0_#9f5100] active:translate-y-1 active:shadow-none transition"><i className="fas fa-chevron-left"></i></button>
-                            <span className="font-bold text-amber-900">{formatDate(currentDate)}</span>
-                            <button onClick={() => changeDate(1)} className="bg-orange-300 border-2 border-white text-2xl w-10 h-10 rounded-full flex items-center justify-center text-amber-900 shadow-[0_4px_0_#9f5100] active:translate-y-1 active:shadow-none transition"><i className="fas fa-chevron-right"></i></button>
-                        </div>
-
-                        <div className="bg-amber-50 border-4 border-white rounded-[50px] p-6 w-full mb-8 shadow-[0_12px_0_#cc8e4b]">
-                            <h2 className="text-2xl font-extrabold text-amber-900 mb-4 ml-2"><i className="fas fa-check-circle"></i> Tugas Hari Ini</h2>
-                            <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto pr-2">
-                                {dataLoading ? <p className="text-center font-bold text-amber-900">Memuat tugas...</p> : tasks.length === 0 ? <p className="text-center font-bold text-amber-900">Belum ada tugas</p> : tasks.map(task => {
-                                    const taskPoints = task.Points || task.PointPerUnit || 0;
-                                    const logData = logs.find(l => l.TaskID === task.ID);
-                                    const quantity = logData ? logData.Quantity : 0;
-
-                                    return (
-                                        <div key={task.ID} className="flex flex-wrap items-center gap-4 py-3 px-4 border-b-2 border-dashed border-yellow-400 hover:bg-orange-100 transition rounded-[40px]">
-                                            <span className="text-3xl drop-shadow-md">{task.Icon || '📋'}</span>
-                                            <span className="flex-1 font-bold text-amber-900 min-w-[120px]">{task.Name}</span>
-                                            <span className="bg-orange-200 border-2 border-white rounded-full px-3 py-1 font-extrabold text-amber-900 text-sm whitespace-nowrap">
-                                                {taskPoints} poin
-                                            </span>
-                                            <div className="flex items-center gap-3 bg-white/50 rounded-full px-2 py-1">
-                                                <button onClick={() => quantity > 0 && updateLog(task.ID, quantity - 1)} className="w-8 h-8 rounded-full border-2 border-white bg-orange-300 text-amber-900 font-bold text-lg shadow-[0_2px_0_#9f5100] active:translate-y-0.5 active:shadow-none flex items-center justify-center">
-                                                    -
-                                                </button>
-                                                <span className="font-extrabold text-lg text-amber-900 w-4 text-center">{quantity}</span>
-                                                <button onClick={() => updateLog(task.ID, quantity + 1)} className="w-8 h-8 rounded-full border-2 border-white bg-orange-400 text-white font-bold text-lg shadow-[0_2px_0_#9f5100] active:translate-y-0.5 active:shadow-none flex items-center justify-center">
-                                                    +
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {activeTab === 'rewards' && (
-                    <div className="bg-orange-100 border-4 border-white rounded-[50px] p-6 w-full shadow-[0_12px_0_#b8772e] mb-8">
-                        <h2 className="text-2xl font-extrabold text-amber-900 mb-6 flex items-center gap-3">
-                            <i className="fas fa-gift"></i> Yuk Tukar Poin!
-                        </h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {dataLoading ? <p className="font-bold text-amber-900 col-span-3">Memuat hadiah...</p> : rewards.length === 0 ? <p className="font-bold text-amber-900 col-span-3">Belum ada hadiah</p> : rewards.map(reward => {
-                                const price = reward.PointsRequired || reward.Price || 0;
-                                return (
-                                    <div key={reward.ID} className="bg-white border-4 border-orange-200 rounded-[40px] p-4 text-center shadow-[0_8px_0_#d47f2a] transition flex flex-col justify-between">
-                                        <div className="font-extrabold text-amber-900 flex flex-col items-center gap-2 mb-3">
-                                            <span className="text-4xl drop-shadow-md mb-2">{reward.Icon || '🎁'}</span>
-                                            <span className="text-sm">{reward.Name}</span>
-                                        </div>
-                                        <div>
-                                            <div className="bg-orange-200 border-2 border-white rounded-full px-4 py-1 text-sm font-bold text-amber-900 inline-block mb-4">
-                                                {price} poin
-                                            </div>
-                                            <button
-                                                onClick={() => redeemReward(reward.ID, price)}
-                                                disabled={balance < price}
-                                                className="w-full bg-orange-500 border-2 border-white rounded-full py-2 font-bold text-white shadow-[0_4px_0_#9f5100] text-sm disabled:bg-orange-300 disabled:shadow-[0_4px_0_#b47a46] disabled:opacity-70 disabled:cursor-not-allowed"
-                                            >
-                                                Tukar
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'leaderboard' && (
-                    <div className="bg-yellow-50 border-4 border-white rounded-[50px] p-6 w-full shadow-[0_12px_0_#d9a04a] mb-8">
-                        <h2 className="text-2xl font-extrabold text-amber-900 mb-6 flex items-center gap-3">
-                            <i className="fas fa-trophy text-yellow-500"></i> Papan Klasemen
-                        </h2>
-                        <div className="text-center p-8 bg-white/70 border-4 border-dashed border-yellow-200 rounded-[30px] font-bold text-amber-800">
-                            Fitur klasemen sedang dimuat... (Data Leaderboard API akan ditampilkan di sini)
-                        </div>
-                    </div>
-                )}
-
-                <div className="mt-8 text-amber-700 font-bold text-center border-t-2 border-amber-200/50 pt-4 w-full">
-                    ✨ klik + / - untuk catat jumlah tugas · poin otomatis ✨
-                </div>
+                <Link href="/dashboard" className="inline-flex items-center gap-2 font-bold text-sm text-[#7b4a1e] bg-[#ffcf8a] px-6 py-3 rounded-full border-[3px] border-white" style={{ boxShadow: '0 4px 0 #b45f06' }}>
+                    <i className="fas fa-arrow-left"></i> Kembali ke Dashboard
+                </Link>
             </div>
         </div>
     );
+}
+
+// ============================================================
+// PHASE 2: PIN VERIFICATION
+// ============================================================
+function PinVerify({ child, onVerified, onBack }: { child: any, onVerified: () => void, onBack: () => void }) {
+    const [pin, setPin] = useState('');
+    const [error, setError] = useState('');
+    const [checking, setChecking] = useState(false);
+
+    const handleDigit = (digit: string) => {
+        if (pin.length >= 4) return;
+        const newPin = pin + digit;
+        setPin(newPin);
+        setError('');
+
+        if (newPin.length === 4) {
+            verifyPin(newPin);
+        }
+    };
+
+    const handleDelete = () => {
+        setPin(prev => prev.slice(0, -1));
+        setError('');
+    };
+
+    const verifyPin = async (pinValue: string) => {
+        setChecking(true);
+        try {
+            await api.post('/parent/verify-pin', { childId: child.ID, pin: pinValue });
+            onVerified();
+        } catch (err: any) {
+            setPin('');
+            setError(err.response?.data?.error || 'PIN salah!');
+        } finally {
+            setChecking(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex justify-center items-center p-4 font-sans select-none" style={{ background: 'linear-gradient(145deg, #f9f0d4 0%, #fce2c1 100%)' }}>
+            <div className="w-full max-w-sm text-center" style={{
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '60px',
+                boxShadow: '0 30px 50px rgba(241,143,1,0.2)',
+                border: '3px solid rgba(255,255,255,0.67)',
+                padding: '40px 24px',
+            }}>
+                <span className="text-6xl block mb-3">{child.AvatarIcon || '👦'}</span>
+                <h2 className="text-xl font-[800] text-[#6b3f00] mb-1">{child.Name}</h2>
+                <p className="text-[#8d5200] font-semibold mb-6">Masukkan PIN 4 digit</p>
+
+                {/* PIN dots */}
+                <div className="flex justify-center gap-4 mb-6">
+                    {[0, 1, 2, 3].map(i => (
+                        <div key={i} className="w-14 h-14 rounded-full border-[3px] border-white flex items-center justify-center text-2xl font-[900]" style={{
+                            background: pin[i] ? '#fb8b2c' : '#ffeacc',
+                            boxShadow: pin[i] ? '0 4px 0 #9f5100' : '0 4px 0 #b8772e',
+                            color: pin[i] ? 'white' : '#ccc',
+                        }}>
+                            {pin[i] ? '●' : ''}
+                        </div>
+                    ))}
+                </div>
+
+                {error && <p className="text-red-500 font-bold mb-4 animate-pulse">{error}</p>}
+                {checking && <p className="text-[#b45f06] font-bold mb-4"><i className="fas fa-spinner fa-spin"></i> Memeriksa...</p>}
+
+                {/* Numpad */}
+                <div className="grid grid-cols-3 gap-3 max-w-[240px] mx-auto mb-6">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '←'].map((key, i) => {
+                        if (key === '') return <div key={`empty-${i}`}></div>;
+                        return (
+                            <button
+                                key={`btn-${key}`}
+                                onClick={() => key === '←' ? handleDelete() : handleDigit(key)}
+                                disabled={checking}
+                                className="h-14 rounded-full border-[3px] border-white font-[800] text-xl transition-all active:scale-90 disabled:opacity-50"
+                                style={{
+                                    background: key === '←' ? '#ff9b9b' : '#ffb156',
+                                    color: key === '←' ? 'white' : '#633d0e',
+                                    boxShadow: key === '←' ? '0 4px 0 #b91c1c' : '0 4px 0 #9f5100',
+                                }}
+                            >
+                                {key === '←' ? <i className="fas fa-backspace"></i> : key}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <button onClick={onBack} className="text-[#8d5200] font-bold text-sm hover:underline">
+                    <i className="fas fa-arrow-left mr-1"></i> Ganti Profil
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ============================================================
+// PHASE 3: TASK PANEL (Kiosk-style for selected child)
+// ============================================================
+function TaskPanel({ child, onSwitchProfile }: { child: any, onSwitchProfile: () => void }) {
+    const [currentDate, setCurrentDate] = useState(getLocalDate());
+    const [processingTasks, setProcessingTasks] = useState<Set<string>>(new Set());
+
+    const { data: tasks = [] } = useSWR('/tasks', fetcher);
+    const { data: rewards = [] } = useSWR('/rewards', fetcher);
+    const { data: balanceData, mutate: mutateBalance } = useSWR(`/points/${child.ID}`, fetcher);
+    const { data: logs = [], mutate: mutateLogs } = useSWR(
+        `/logs?childId=${child.ID}&date=${currentDate}`, fetcher
+    );
+
+    const balance = balanceData?.balance || balanceData?.Balance || 0;
+    const isToday = currentDate === getLocalDate();
+
+    const taskCountMap = useMemo(() => {
+        const map: Record<string, { count: number; logIds: string[] }> = {};
+        if (!Array.isArray(logs)) return map;
+        for (const log of logs) {
+            const tid = log.TaskID;
+            if (!map[tid]) map[tid] = { count: 0, logIds: [] };
+            map[tid].count++;
+            map[tid].logIds.push(log.ID);
+        }
+        return map;
+    }, [logs]);
+
+    // + Button
+    const handleIncrement = useCallback(async (task: any) => {
+        if (processingTasks.has(task.ID)) return;
+        setProcessingTasks(prev => new Set([...prev, task.ID]));
+
+        const origLogs = logs ? [...logs] : [];
+        const origBalance = balance;
+        mutateLogs([...origLogs, { TaskID: task.ID, Status: 'verified', ID: 'temp-' + Date.now() }], false);
+        mutateBalance({ balance: origBalance + (task.PointReward || 0) }, false);
+
+        try {
+            await api.post('/parent/kiosk/complete', { child_id: child.ID, task_id: task.ID, date: currentDate });
+            toast.success(`Hore! +${task.PointReward} poin! 🌟`, {
+                style: { border: '3px solid #fbbf24', background: '#fffbeb', color: '#b45f06', fontWeight: 'bold' },
+                duration: 1500,
+            });
+            mutateLogs();
+            mutateBalance();
+        } catch (err: any) {
+            mutateLogs(origLogs, false);
+            mutateBalance({ balance: origBalance }, false);
+            if (err.response?.status === 409) {
+                toast.info('Sudah dikerjakan hari ini! ✅', { duration: 1500 });
+                mutateLogs();
+            } else {
+                toast.error('Gagal, coba lagi');
+            }
+        } finally {
+            setProcessingTasks(prev => { const n = new Set(prev); n.delete(task.ID); return n; });
+        }
+    }, [child.ID, logs, balance, currentDate, processingTasks, mutateLogs, mutateBalance]);
+
+    // - Button (undo)
+    const handleDecrement = useCallback(async (task: any) => {
+        const entry = taskCountMap[task.ID];
+        if (!entry || entry.count === 0) return;
+        const logId = entry.logIds[entry.logIds.length - 1];
+        if (!logId || logId.startsWith('temp-')) return;
+
+        setProcessingTasks(prev => new Set([...prev, task.ID]));
+        const origLogs = logs ? [...logs] : [];
+        const origBalance = balance;
+        mutateLogs(origLogs.filter((l: any) => l.ID !== logId), false);
+        mutateBalance({ balance: origBalance - (task.PointReward || 0) }, false);
+
+        try {
+            await api.post(`/parent/logs/${logId}/undo`);
+            toast.success(`Dibatalkan -${task.PointReward} poin`, {
+                style: { border: '3px solid #fca5a5', background: '#fef2f2', color: '#991b1b', fontWeight: 'bold' },
+                duration: 1500,
+            });
+            mutateLogs();
+            mutateBalance();
+        } catch {
+            mutateLogs(origLogs, false);
+            mutateBalance({ balance: origBalance }, false);
+            toast.error('Gagal membatalkan');
+        } finally {
+            setProcessingTasks(prev => { const n = new Set(prev); n.delete(task.ID); return n; });
+        }
+    }, [taskCountMap, logs, balance, mutateLogs, mutateBalance]);
+
+    // Redeem
+    const handleRedeem = useCallback(async (reward: any) => {
+        const price = reward.PointsRequired || 0;
+        if (balance < price) {
+            toast.error('Poin belum cukup! 💪');
+            return;
+        }
+        try {
+            await api.post('/redemptions', { childId: child.ID, rewardId: reward.ID });
+            toast.success(`Yeay! Tukar ${reward.Name}! 🎁`, {
+                style: { border: '3px solid #86efac', background: '#f0fdf4', color: '#166534', fontWeight: 'bold' },
+                duration: 2000,
+            });
+            mutateBalance();
+        } catch (err: any) {
+            toast.error(err.response?.data?.error || 'Gagal tukar hadiah');
+        }
+    }, [balance, child.ID, mutateBalance]);
+
+    const goDate = (offset: number) => {
+        const d = new Date(currentDate + 'T00:00:00');
+        d.setDate(d.getDate() + offset);
+        setCurrentDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+    };
+
+    return (
+        <div className="min-h-screen flex justify-center p-3 sm:p-4 font-sans select-none" style={{ background: 'linear-gradient(145deg, #f9f0d4 0%, #fce2c1 100%)' }}>
+            <div className="w-full max-w-[750px]" style={{
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '60px 60px 40px 40px',
+                boxShadow: '0 30px 50px rgba(241,143,1,0.2), 0 20px 40px rgba(0,60,80,0.1)',
+                border: '3px solid rgba(255,255,255,0.67)',
+                padding: '28px 18px 35px',
+                overflow: 'hidden',
+            }}>
+
+                {/* HEADER */}
+                <div className="flex flex-wrap justify-between items-center mb-5 gap-3">
+                    <h1 className="text-[1.8rem] sm:text-[2.2rem] font-[800] flex items-center gap-3" style={{
+                        background: 'linear-gradient(135deg, #b43b0d, #e97c1f)',
+                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                    }}>
+                        <i className="fas fa-moon" style={{
+                            background: '#ffd966', padding: 12, borderRadius: '50%',
+                            color: '#b45f06', fontSize: '1.5rem',
+                            boxShadow: '0 8px 0 #b45f06', transform: 'translateY(-3px)',
+                            WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset',
+                        }}></i>
+                        Ramadhan Ceria
+                    </h1>
+                    <button onClick={onSwitchProfile} className="flex items-center gap-2 font-bold text-sm rounded-full px-5 py-3 border-[3px] border-white transition-all active:scale-95" style={{
+                        background: '#ffcf8a', color: '#7b4a1e',
+                        boxShadow: '0 6px 0 #b45f06',
+                    }}>
+                        <i className="fas fa-exchange-alt"></i> Ganti Profil
+                    </button>
+                </div>
+
+                {/* BALANCE CARD */}
+                <div className="flex justify-center mb-6">
+                    <div className="w-full max-w-sm flex items-center gap-5 py-4 px-6 transition-transform hover:scale-[1.02]" style={{
+                        background: 'linear-gradient(145deg, #feeac2, #ffd9a3)',
+                        borderRadius: '40px 40px 30px 30px',
+                        border: '3px solid white',
+                        boxShadow: '0 10px 0 #bb6b2e, 0 6px 15px rgba(230,147,62,0.5)',
+                    }}>
+                        <span className="text-5xl drop-shadow-md">{child.AvatarIcon || '👦'}</span>
+                        <div>
+                            <p className="font-[800] text-[#6b3f00] text-lg">{child.Name}</p>
+                            <p className="text-[2.8rem] font-[900] text-[#1f6d3b] leading-none" style={{ textShadow: '2px 2px 0 #ffe3b0' }}>
+                                {balance}
+                            </p>
+                            <span className="text-xs bg-white/60 px-3 py-1 rounded-full text-[#563e1f] font-semibold">total koin</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* DATE NAV */}
+                <div className="flex items-center justify-between mb-6 rounded-full px-3 py-1.5" style={{
+                    background: '#ffeacc', border: '3px solid white', boxShadow: '0 6px 0 #b8772e',
+                }}>
+                    <button onClick={() => goDate(-1)} className="w-[48px] h-[48px] rounded-full flex items-center justify-center text-2xl border-[3px] border-white" style={{
+                        background: '#ffb156', color: '#633d0e', boxShadow: '0 4px 0 #9f5100',
+                    }}>
+                        <i className="fas fa-chevron-left"></i>
+                    </button>
+                    <span className="font-[800] text-base sm:text-lg text-[#492d0b] bg-white py-2 px-4 rounded-full" style={{ boxShadow: 'inset 0 -3px 0 #e6b881' }}>
+                        {formatDateDisplay(currentDate)}{isToday && ' ✨'}
+                    </span>
+                    <button onClick={() => goDate(1)} className="w-[48px] h-[48px] rounded-full flex items-center justify-center text-2xl border-[3px] border-white" style={{
+                        background: '#ffb156', color: '#633d0e', boxShadow: '0 4px 0 #9f5100',
+                    }}>
+                        <i className="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                {/* TASKS */}
+                <div className="mb-8 overflow-y-auto max-h-[420px]" style={{
+                    background: '#fef9e6', borderRadius: 50, padding: '22px 14px',
+                    border: '4px solid white',
+                    boxShadow: '0 12px 0 #cc8e4b, 0 8px 20px #f1b36b',
+                }}>
+                    {tasks.length === 0 ? (
+                        <p className="text-center font-bold text-[#8d5200] py-6">Belum ada tugas 📝</p>
+                    ) : tasks.map((task: any) => {
+                        const count = taskCountMap[task.ID]?.count || 0;
+                        const points = task.PointReward || 0;
+                        const maxPerDay = task.MaxPerDay ?? 1;
+                        const atMax = maxPerDay > 0 && count >= maxPerDay;
+                        const isProcessing = processingTasks.has(task.ID);
+                        return (
+                            <div key={task.ID} className={`flex items-center gap-3 py-3 px-2.5 border-b-2 border-dashed border-[#ffc107] rounded-[40px] transition-colors ${atMax ? 'bg-[#e8f5e9]' : 'hover:bg-[#ffefd2]'}`}>
+                                <span className="text-xl w-9 text-center drop-shadow-sm">{task.Icon || '📌'}</span>
+                                <div className="flex-1">
+                                    <span className="font-semibold text-[#3b280b] text-sm sm:text-base">{task.Name}</span>
+                                    <div className="text-[10px] text-[#8d5200] font-medium mt-0.5">
+                                        {maxPerDay === 0 ? '∞' : `${count}/${maxPerDay}`}
+                                    </div>
+                                </div>
+                                <span className="bg-[#ffd89c] rounded-full px-3 py-1 font-[800] text-[#5e3200] text-xs border-2 border-white whitespace-nowrap">
+                                    {points} poin
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => handleDecrement(task)} disabled={count === 0 || isProcessing}
+                                        className="w-8 h-8 rounded-full border-2 border-white font-[800] text-lg flex items-center justify-center transition-all disabled:opacity-40"
+                                        style={{ background: count > 0 ? '#ff7b7b' : '#ccc', color: 'white', boxShadow: count > 0 ? '0 4px 0 #b91c1c' : 'none' }}>
+                                        −
+                                    </button>
+                                    <span className={`min-w-[28px] text-center font-bold text-lg ${count > 0 ? 'text-[#1f6d3b]' : 'text-[#5e3200]'}`}>
+                                        {isProcessing ? <i className="fas fa-spinner fa-spin text-sm"></i> : count}
+                                    </span>
+                                    <button onClick={() => handleIncrement(task)} disabled={isProcessing || atMax}
+                                        className="w-8 h-8 rounded-full border-2 border-white font-[800] text-lg flex items-center justify-center transition-all disabled:opacity-50"
+                                        style={{ background: atMax ? '#4ade80' : '#ffb156', color: 'white', boxShadow: atMax ? '0 4px 0 #16a34a' : '0 4px 0 #9f5100' }}>
+                                        {atMax ? '✓' : '+'}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* REWARDS */}
+                <div style={{
+                    background: '#fce9cf', borderRadius: '60px 60px 30px 30px',
+                    padding: '26px 16px', border: '5px solid white',
+                    boxShadow: '0 12px 0 #b8772e, 0 12px 25px #e79a4e', marginTop: 25,
+                }}>
+                    <h2 className="text-2xl sm:text-[2rem] font-[800] text-[#793f0e] flex items-center gap-3 mb-5">
+                        <i className="fas fa-gift"></i> Yuk Tukar Poin!
+                    </h2>
+                    <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))' }}>
+                        {rewards.map((reward: any) => {
+                            const price = reward.PointsRequired || 0;
+                            const canRedeem = balance >= price;
+                            return (
+                                <div key={reward.ID} className="p-4" style={{
+                                    background: 'white', borderRadius: 40,
+                                    border: '3px solid #fec382',
+                                    boxShadow: '0 8px 0 #d47f2a, 0 6px 12px rgba(0,0,0,0.1)',
+                                }}>
+                                    <div className="font-[800] text-[#5d3b12] text-sm mb-1 flex items-center gap-1">
+                                        <span>{reward.Icon || '🎁'}</span> {reward.Name}
+                                    </div>
+                                    <div className="inline-block bg-[#fecb8b] rounded-full px-3 py-1 font-bold text-sm border-2 border-white mb-3">
+                                        {price} poin
+                                    </div>
+                                    <button onClick={() => handleRedeem(reward)} disabled={!canRedeem}
+                                        className="w-full flex items-center justify-between rounded-full py-2.5 pl-4 pr-3 font-bold text-sm text-white border-[3px] border-white transition-all disabled:opacity-50"
+                                        style={canRedeem ? { background: '#f09b22', boxShadow: '0 4px 0 #9f5100' } : { background: '#cfa87a', boxShadow: '0 4px 0 #7b572b', pointerEvents: 'none' as const }}>
+                                        <span>🎁 Tukar</span>
+                                        <span className="bg-[#fdeaac] rounded-full px-2.5 py-0.5 text-[#633d0e] font-[800] text-xs">{price} koin</span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <footer className="text-center text-[#7a5d3b] mt-8 text-sm font-semibold">
+                    ✨ klik + / − untuk catat tugas · poin otomatis ✨
+                </footer>
+            </div>
+        </div>
+    );
+}
+
+// ============================================================
+// MAIN PAGE: Orchestrates the 3 phases
+// ============================================================
+export default function PanelPage() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    const [selectedChild, setSelectedChild] = useState<any>(null);
+    const [pinVerified, setPinVerified] = useState(false);
+
+    const { data: children = [] } = useSWR(user ? '/children' : null, fetcher);
+
+    useEffect(() => {
+        if (!loading && !user) router.push('/login');
+    }, [user, loading, router]);
+
+    if (loading || !user) {
+        return <div className="min-h-screen flex items-center justify-center font-bold text-xl text-[#b45f06]" style={{ background: 'linear-gradient(145deg, #f9f0d4, #fce2c1)' }}>
+            <i className="fas fa-spinner fa-spin mr-3"></i> Tunggu sebentar ya...
+        </div>;
+    }
+
+    // Phase 1: Pick a child
+    if (!selectedChild) {
+        return <ChildSelector children={children} onSelect={(child) => {
+            setSelectedChild(child);
+            setPinVerified(false);
+        }} />;
+    }
+
+    // Phase 2: Verify PIN
+    if (!pinVerified) {
+        return <PinVerify
+            child={selectedChild}
+            onVerified={() => setPinVerified(true)}
+            onBack={() => { setSelectedChild(null); setPinVerified(false); }}
+        />;
+    }
+
+    // Phase 3: Task Panel
+    return <TaskPanel
+        child={selectedChild}
+        onSwitchProfile={() => { setSelectedChild(null); setPinVerified(false); }}
+    />;
 }

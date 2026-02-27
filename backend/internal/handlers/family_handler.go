@@ -33,7 +33,7 @@ func UpdateFamilySettings(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Family not found"})
 	}
 
-	family.Title = req.Title
+	family.Name = req.Title
 	if err := database.DB.Save(&family).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not update family"})
 	}

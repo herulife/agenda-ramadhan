@@ -8,10 +8,9 @@ import (
 )
 
 type CreateChildRequest struct {
-	Name     string `json:"name"`
-	Avatar   string `json:"avatar"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	PIN    string `json:"pin"`
 }
 
 func GetChildren(c *fiber.Ctx) error {
@@ -40,23 +39,21 @@ func CreateChild(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
-	var existing models.User
-	if err := database.DB.Where("username = ?", req.Username).First(&existing).Error; err == nil {
-		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Username already taken"})
+	if len(req.PIN) != 4 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PIN must be exactly 4 digits"})
 	}
 
-	hashed, err := utils.HashPassword(req.Password)
+	hashed, err := utils.HashPassword(req.PIN)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not hash password"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not hash pin"})
 	}
 
 	child := models.User{
-		Name:         req.Name,
-		Avatar:       req.Avatar,
-		Username:     &req.Username,
-		PasswordHash: hashed,
-		Role:         "child",
-		FamilyID:     familyID,
+		Name:       req.Name,
+		AvatarIcon: req.Avatar,
+		PINHash:    &hashed,
+		Role:       "child",
+		FamilyID:   familyID,
 	}
 	if err := database.DB.Create(&child).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not create child"})
@@ -80,20 +77,17 @@ func UpdateChild(c *fiber.Ctx) error {
 	}
 
 	child.Name = req.Name
-	child.Avatar = req.Avatar
-	if req.Username != "" && (child.Username == nil || *child.Username != req.Username) {
-		var existing models.User
-		if err := database.DB.Where("username = ?", req.Username).First(&existing).Error; err == nil {
-			return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Username already taken"})
+	child.AvatarIcon = req.Avatar
+
+	if req.PIN != "" {
+		if len(req.PIN) != 4 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PIN must be exactly 4 digits"})
 		}
-		child.Username = &req.Username
-	}
-	if req.Password != "" {
-		hashed, err := utils.HashPassword(req.Password)
+		hashed, err := utils.HashPassword(req.PIN)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not hash password"})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not hash pin"})
 		}
-		child.PasswordHash = hashed
+		child.PINHash = &hashed
 	}
 
 	if err := database.DB.Save(&child).Error; err != nil {

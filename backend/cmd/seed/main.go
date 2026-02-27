@@ -4,12 +4,17 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/username/ramadhan-ceria-backend/internal/database"
 	"github.com/username/ramadhan-ceria-backend/internal/models"
 	"github.com/username/ramadhan-ceria-backend/internal/utils"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
 	database.ConnectDB()
 
 	// Clean up existing data for a fresh start (optional but good for this seed script)
@@ -28,21 +33,19 @@ func main() {
 	adminID := uuid.New().String()
 
 	sysFamily := models.Family{
-		ID:      sysFamilyID,
-		Slug:    "system-admin",
-		Title:   "System Admin",
-		OwnerID: adminID,
-		Plan:    "PREMIUM",
+		ID:   sysFamilyID,
+		Name: "System Admin",
+		Plan: "PREMIUM",
 	}
 	database.DB.Create(&sysFamily)
 
 	superAdmin := models.User{
 		ID:           adminID,
 		Email:        &superAdminEmail,
-		PasswordHash: hashedSuperAdmin,
+		PasswordHash: &hashedSuperAdmin,
 		Name:         "Super Admin",
 		Role:         "super_admin",
-		Avatar:       "👑",
+		AvatarIcon:   "👑",
 		FamilyID:     sysFamilyID,
 	}
 	database.DB.Create(&superAdmin)
@@ -55,46 +58,43 @@ func main() {
 	parentID := uuid.New().String()
 
 	family := models.Family{
-		ID:      familyID,
-		Slug:    "keluarga-bahagia",
-		Title:   "Keluarga Bahagia",
-		OwnerID: parentID,
-		Plan:    "FREE",
+		ID:   familyID,
+		Name: "Keluarga Bahagia",
+		Plan: "FREE",
 	}
 	database.DB.Create(&family)
 
 	parent := models.User{
 		ID:           parentID,
 		Email:        &parentEmail,
-		PasswordHash: hashedParent,
+		PasswordHash: &hashedParent,
 		Name:         "Ayah Budi",
 		Role:         "parent",
-		Avatar:       "🧔",
+		AvatarIcon:   "🧔",
 		FamilyID:     familyID,
 	}
 	database.DB.Create(&parent)
 
 	// 3. Child (Anak)
-	childUsername := "anak1"
-	childPassword := "anak123"
-	hashedChild, _ := utils.HashPassword(childPassword)
+	childName := "Budi Kecil"
+	childPIN := "1234"
+	hashedChild, _ := utils.HashPassword(childPIN)
 	childID := uuid.New().String()
 
 	child := models.User{
-		ID:           childID,
-		Username:     &childUsername,
-		PasswordHash: hashedChild,
-		Name:         "Budi Kecil",
-		Role:         "child",
-		Avatar:       "👦",
-		FamilyID:     familyID,
+		ID:         childID,
+		PINHash:    &hashedChild,
+		Name:       childName,
+		Role:       "child",
+		AvatarIcon: "👦",
+		FamilyID:   familyID,
 	}
 	database.DB.Create(&child)
 
 	// Insert dummy Tasks & Rewards for this family to play with
 	tasks := []models.Task{
-		{ID: uuid.New().String(), Name: "Sholat Subuh", Icon: "🕋", Points: 5, FamilyID: familyID},
-		{ID: uuid.New().String(), Name: "Bantu Cuci Piring", Icon: "🍽️", Points: 3, FamilyID: familyID},
+		{ID: uuid.New().String(), Name: "Sholat Subuh", PointReward: 5, FamilyID: familyID},
+		{ID: uuid.New().String(), Name: "Bantu Cuci Piring", PointReward: 3, FamilyID: familyID},
 	}
 	database.DB.Create(&tasks)
 
@@ -115,7 +115,7 @@ func main() {
 	log.Printf("Password : %s\n", parentPassword)
 	log.Println("=======================================")
 	log.Println("3) AKUN ANAK (Akses: /panel)")
-	log.Printf("Username : %s\n", childUsername)
-	log.Printf("Password : %s\n", childPassword)
+	log.Printf("Name : %s\n", childName)
+	log.Printf("PIN : %s\n", childPIN)
 	log.Println("=======================================")
 }
