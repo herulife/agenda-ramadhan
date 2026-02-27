@@ -1,51 +1,54 @@
 version: '3.8'
 
 services:
-  postgres-db:
+  # PostgreSQL Database for Ramadhan Ceria
+  ramadhan-db:
     image: postgres:15-alpine
-    container_name: ramadhan_ceria_db
+    container_name: ramadhan-db
+    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Admin#1234
+      POSTGRES_USER: ramadhan_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-RamadhanCeria2026!SecurePass}
       POSTGRES_DB: ramadhan_ceria
-    ports:
-      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
+      - ramadhan_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - ramadhan-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ramadhan_user -d ramadhan_ceria" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  backend-api:
+  # Go Backend API
+  ramadhan-backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ramadhan_ceria_backend
+    container_name: ramadhan-backend
+    restart: always
+    depends_on:
+      ramadhan-db:
+        condition: service_healthy
+    environment:
+      DB_HOST: ramadhan-db
+      DB_USER: ramadhan_user
+      DB_PASSWORD: ${DB_PASSWORD:-RamadhanCeria2026!SecurePass}
+      DB_NAME: ramadhan_ceria
+      DB_PORT: "5432"
+      PORT: "3005"
+      JWT_SECRET: ${JWT_SECRET:-RamadhanCeriaJWTSecretKey2026SuperLong}
     ports:
       - "3005:3005"
-    environment:
-      - PORT=3005
-      - JWT_SECRET=rahasia_super_aman_ganti_ini
-      - DB_HOST=postgres-db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=Admin#1234
-      - DB_NAME=ramadhan_ceria
-    depends_on:
-      postgres-db:
-        condition: service_started
-    restart: unless-stopped
-
-  frontend-web:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: ramadhan_ceria_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3005
-    depends_on:
-      - backend-api
-    restart: unless-stopped
+    networks:
+      - ramadhan-net
 
 volumes:
-  pgdata:
+  ramadhan_db_data:
+
+
+networks:
+  ramadhan-net:
+    driver: bridge

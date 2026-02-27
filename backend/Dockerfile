@@ -1,20 +1,38 @@
-# Stage 1: Build
-FROM golang:1.21-alpine AS builder
+# Build stage
+FROM golang:1.22-alpine AS builder
+
 WORKDIR /app
-# Enable CGO_ENABLED=0 since we are using pure Go SQLite driver
-ENV CGO_ENABLED=0 
+
+# Install git for module downloads
+RUN apk add --no-cache git
+
+# Copy go mod files
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
-RUN go build -o main ./cmd/api
 
-# Stage 2: Run
+# Copy source code
+COPY . .
+
+# Build the binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o server ./cmd/api/main.go
+
+# Runtime stage
 FROM alpine:latest
+
+WORKDIR /app
+
+# Install ca-certificates for HTTPS calls (Google OAuth etc)
 RUN apk --no-cache add ca-certificates tzdata
-WORKDIR /root/
-# Copy the compiled binary
-COPY --from=builder /app/main .
-# In a real environment, you'd probably mount the database file via a volume
-# to preserve data across container restarts
+
+# Set timezone to Jakarta
+ENV TZ=Asia/Jakarta
+
+# Copy binary from builder
+COPY --from=builder /app/server .
+
+# Copy .env if exists (will be overridden by env vars)
+COPY --from=builder /app/.env* ./
+
 EXPOSE 3005
-CMD ["./main"]
+
+CMD ["./server"]
