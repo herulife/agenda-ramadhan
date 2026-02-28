@@ -254,3 +254,122 @@
   scrollbar-width: none;
   /* Firefox */
 }
+
+/* ===== Custom Sonner Toast Theme - Ramadhan Ceria ===== */
+[data-sonner-toaster] {
+  --width: 380px;
+  z-index: 99999;
+}
+
+[data-sonner-toast] {
+  border: 2px solid transparent !important;
+  backdrop-filter: blur(12px);
+}
+
+[data-sonner-toast][data-type='success'] {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #6ee7b7 !important;
+  color: #065f46 !important;
+}
+
+[data-sonner-toast][data-type='error'] {
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%) !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+}
+
+[data-sonner-toast][data-type='info'] {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border-color: #fbbf24 !important;
+  color: #92400e !important;
+}
+
+[data-sonner-toast][data-type='warning'] {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%) !important;
+  border-color: #fb923c !important;
+  color: #9a3412 !important;
+}
+
+/* Toast icon animations */
+[data-sonner-toast] [data-icon] {
+  animation: toast-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes toast-pop {
+  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Toast close button */
+[data-sonner-toast] [data-close-button] {
+  background: rgba(255,255,255,0.8) !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: rgba(255,255,255,1) !important;
+  transform: scale(1.1);
+}
+
+/* SweetAlert2 Ramadhan Theme */
+.swal2-popup.ramadhan-swal {
+  font-family: 'Quicksand', sans-serif;
+  border-radius: 24px;
+  padding: 2rem;
+  background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%);
+  border: 3px solid #fbbf24;
+  box-shadow: 0 25px 60px rgba(201, 139, 46, 0.2);
+}
+
+.swal2-popup.ramadhan-swal .swal2-title {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 800;
+  color: #7b4a1e;
+  font-size: 1.5rem;
+}
+
+.swal2-popup.ramadhan-swal .swal2-html-container {
+  font-family: 'Quicksand', sans-serif;
+  color: #5a3e2b;
+  font-weight: 500;
+}
+
+.swal2-popup.ramadhan-swal .swal2-confirm {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border-radius: 12px !important;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  padding: 12px 32px;
+  box-shadow: 0 4px 0 #b45f06, 0 6px 20px rgba(245, 158, 11, 0.3);
+  transition: all 0.2s ease;
+}
+
+.swal2-popup.ramadhan-swal .swal2-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #b45f06, 0 8px 25px rgba(245, 158, 11, 0.4);
+}
+
+.swal2-popup.ramadhan-swal .swal2-cancel {
+  background: transparent !important;
+  color: #92400e !important;
+  border: 2px solid #d97706 !important;
+  border-radius: 12px !important;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  padding: 12px 32px;
+}
+
+/* Celebration animation for achievements */
+@keyframes celebrate-bounce {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  50% { transform: scale(1.15) rotate(3deg); }
+  75% { transform: scale(1.05) rotate(-1deg); }
+}
+
+.celebrate-icon {
+  animation: celebrate-bounce 0.6s ease-in-out;
+}

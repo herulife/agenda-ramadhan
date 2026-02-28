@@ -39,8 +39,16 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await login(email, password);
+            toast.success('Assalamualaikum! Selamat datang kembali 🌙', {
+                description: 'Mengarahkan ke dashboard...',
+                icon: '✨',
+            });
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Login gagal. Periksa email dan password.');
+            const errorMsg = err.response?.data?.error || 'Login gagal. Periksa email dan password.';
+            toast.error(errorMsg, {
+                description: 'Pastikan email dan password Anda benar 🔑',
+                icon: '😅',
+            });
         } finally {
             setLoading(false);
         }

@@ -4,6 +4,8 @@ import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useGuestGuard } from '@/hooks/useRoleGuard';
 import Link from 'next/link';
+import { toast } from 'sonner';
+import Swal from 'sweetalert2';
 
 export default function RegisterPage() {
     const [step, setStep] = useState(1); // 1: name+family, 2: email+password
@@ -21,11 +23,18 @@ export default function RegisterPage() {
         e.preventDefault();
         if (step === 1) {
             if (!name.trim() || !familyName.trim()) {
-                setError('Nama dan nama keluarga harus diisi');
+                toast.error('Nama dan nama keluarga harus diisi', {
+                    description: 'Silakan lengkapi semua field untuk melanjutkan 📝',
+                    icon: '⚠️',
+                });
                 return;
             }
             setError('');
             setStep(2);
+            toast.info('Satu langkah lagi! 🎯', {
+                description: 'Masukkan email dan password untuk menyelesaikan pendaftaran',
+                icon: '✨',
+            });
             return;
         }
 
@@ -33,9 +42,43 @@ export default function RegisterPage() {
         setLoading(true);
         try {
             await api.post('/auth/register', { email, password, name, familyName });
+
+            // SweetAlert2 celebration!
+            await Swal.fire({
+                title: '🎉 Alhamdulillah!',
+                html: `
+                    <div style="text-align: center;">
+                        <div style="font-size: 64px; margin-bottom: 12px;" class="celebrate-icon">🌙</div>
+                        <p style="font-size: 16px; color: #5a3e2b; font-weight: 600; margin-bottom: 8px;">
+                            Selamat datang di <strong>Ramadhan Ceria</strong>, ${name}!
+                        </p>
+                        <p style="font-size: 14px; color: #a0764a;">
+                            Keluarga <strong>${familyName}</strong> siap memulai perjalanan ibadah yang seru! 🚀
+                        </p>
+                    </div>
+                `,
+                confirmButtonText: 'Masuk Sekarang →',
+                customClass: {
+                    popup: 'ramadhan-swal',
+                },
+                showClass: {
+                    popup: 'animate__animated animate__bounceIn',
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp',
+                },
+                timer: 6000,
+                timerProgressBar: true,
+            });
+
             router.push('/login');
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Pendaftaran gagal. Silakan coba lagi.');
+            const errorMsg = err.response?.data?.error || 'Pendaftaran gagal. Silakan coba lagi.';
+            toast.error(errorMsg, {
+                description: 'Periksa kembali data yang diinput dan coba lagi 🔄',
+                icon: '😔',
+                duration: 5000,
+            });
         } finally {
             setLoading(false);
         }
@@ -101,12 +144,6 @@ export default function RegisterPage() {
                 }}>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {error && (
-                            <div className="flex items-center gap-2 bg-red-50 text-red-500 font-bold p-3.5 rounded-2xl text-sm border-2 border-red-200">
-                                <i className="fas fa-circle-exclamation"></i>
-                                {error}
-                            </div>
-                        )}
 
                         {step === 1 && (
                             <>

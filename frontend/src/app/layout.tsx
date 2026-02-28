@@ -22,7 +22,28 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           {children}
-          <Toaster position="bottom-center" />
+          <Toaster 
+            position="top-center" 
+            expand={true}
+            richColors
+            closeButton
+            duration={4000}
+            toastOptions={{
+              style: {
+                fontFamily: "'Quicksand', sans-serif",
+                borderRadius: '16px',
+                padding: '16px 20px',
+                fontSize: '14px',
+                fontWeight: '600',
+                boxShadow: '0 10px 40px rgba(201, 139, 46, 0.15), 0 4px 12px rgba(0,0,0,0.05)',
+              },
+              classNames: {
+                success: 'sonner-success-ramadhan',
+                error: 'sonner-error-ramadhan',
+                info: 'sonner-info-ramadhan',
+              },
+            }}
+          />
         </AuthProvider>
       </body>
     </html>
